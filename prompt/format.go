@@ -86,7 +86,7 @@ func (prompt *Prompt) Dump() string {
 	// Take the remaining characters after the final style marker.
 	buffer += prompt.text[nextPos:]
 
-  // End with a clean format.
-  buffer += "%{\033[0m%}"
+	// End with a clean format.
+	buffer += "%{\033[0m%}"
 	return buffer
 }
