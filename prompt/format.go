@@ -1,3 +1,5 @@
+// Library for inserting ANSI escapes into prompt strings.
+
 package prompt
 
 import "fmt"
@@ -18,14 +20,14 @@ type Prompt struct {
 }
 
 const (
-	black   = iota
-	red     = iota
-	green   = iota
-	yellow  = iota
-	blue    = iota
-	magenta = iota
-	cyan    = iota
-	white   = iota
+	Black   = iota
+	Red     = iota
+	Green   = iota
+	Yellow  = iota
+	Blue    = iota
+	Magenta = iota
+	Cyan    = iota
+	White   = iota
 )
 
 func (prompt *Prompt) Len() int {
