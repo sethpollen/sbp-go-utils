@@ -24,6 +24,15 @@ func TestMakePromptSimple(t *testing.T) {
 		100, "", "/pw/d", 0, "flag")
 }
 
+func TestMakePromptHomeCollapsing(t *testing.T) {
+	assertMakePrompt(t,
+		"%{\033[0m%}%{\033[1;36m%}12/31 18:00 "+
+			"%{\033[1;35m%}myhost "+
+			"%{\033[1;36m%}~/place "+
+			"%{\033[1;33m%}\nflag$ %{\033[0m%}",
+		100, "", "/home/me/place", 0, "flag")
+}
+
 func TestMakePromptWithInfoAndExitCode(t *testing.T) {
 	assertMakePrompt(t,
 		"%{\033[0m%}%{\033[1;36m%}12/31 18:00 "+
