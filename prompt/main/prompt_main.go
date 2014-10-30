@@ -7,6 +7,8 @@ import "fmt"
 var exitCode = flag.Int("exitcode", 0, "Exit code of previous command.")
 
 func main() {
+  flags.Parse()
+
   var env = prompt.DefaultPromptEnv()
   gitInfo, err := prompt.GetGitInfo(env.Pwd)
 
