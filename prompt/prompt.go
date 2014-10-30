@@ -15,8 +15,8 @@ type PromptEnv struct {
 	Home     string
 	Pwd      string
 	Hostname string
-  // Maximum number of characters which prompt may occupy horizontally.
-  Width int
+	// Maximum number of characters which prompt may occupy horizontally.
+	Width int
 }
 
 // Generates a PromptEnv based on current environment variables.
@@ -26,13 +26,13 @@ func DefaultPromptEnv() *PromptEnv {
 	env.Home = os.Getenv("HOME")
 	env.Pwd = os.Getenv("PWD")
 	env.Hostname, _ = os.Hostname()
-  var widthStr = os.Getenv("COLUMNS")
-  width, err := strconv.ParseInt(widthStr, 10, 32)
-  if err != nil {
-    // Pick a reasonable default.
-    width = 100
-  }
-  env.Width = int(width)
+	var widthStr = os.Getenv("COLUMNS")
+	width, err := strconv.ParseInt(widthStr, 10, 32)
+	if err != nil {
+		// Pick a reasonable default.
+		width = 100
+	}
+	env.Width = int(width)
 	return env
 }
 
@@ -41,7 +41,7 @@ func DefaultPromptEnv() *PromptEnv {
 //   exitCode - The result code of the previous shell command.
 //   flag - A short "flag" string, which appears before the final $.
 func MakePrompt(env *PromptEnv, info string, exitCode int,
-  flag string) *Prompt {
+	flag string) *Prompt {
 	// If the hostname is a full domain name, remove all but the first domain
 	// component.
 	var shortHostname = strings.SplitN(env.Hostname, ".", 2)[0]

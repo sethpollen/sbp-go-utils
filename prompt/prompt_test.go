@@ -10,7 +10,7 @@ func assertMakePrompt(t *testing.T, expected string, width int, info string,
 	pwd string, exitCode int, flag string) {
 	var myEnv = env
 	myEnv.Pwd = pwd
-  myEnv.Width = width
+	myEnv.Width = width
 	var p = MakePrompt(&myEnv, info, exitCode, flag)
 	if p.String() != expected {
 		t.Errorf("Expected %s\nGot %s",
