@@ -16,7 +16,8 @@ type GitInfo struct {
 	Dirty bool
 }
 
-// Queries a GitInfo for the repository that parents 'pwd'.
+// Queries a GitInfo for the repository that parents 'pwd'. If 'pwd' is not in
+// a Git repository, returns an error.
 func GetGitInfo(pwd string) (*GitInfo, error) {
 	repoPath, err := runCommand(pwd, "git", "rev-parse", "--show-toplevel")
 	if err != nil {
