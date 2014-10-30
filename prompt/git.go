@@ -12,6 +12,8 @@ type GitInfo struct {
   // The name of the current branch, or a short hash if we are in a detached
   // head.
   Branch string
+  // True if there are uncommitted local changes.
+  Dirty bool
 }
 
 // Queries GitInfo for the repository that parents 'pwd'.
@@ -34,9 +36,15 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
     }
   }
 
+  status, err := runCommand(pwd, "git", "status", "--porcelain")
+  if err != nil {
+    return nil, err
+  }
+
   var info = new (GitInfo)
   info.Repo = strings.TrimSpace(path.Base(string(repoPath)))
   info.Branch = strings.TrimSpace(branch)
+  info.Dirty = (status != "")
   return info, nil
 }
 
