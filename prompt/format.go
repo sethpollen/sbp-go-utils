@@ -71,7 +71,7 @@ func (prompt *Prompt) Append(other *Prompt) {
 }
 
 // Serializes this Prompt to a string with embedded ANSI escape sequences.
-func (prompt *Prompt) Dump() string {
+func (prompt *Prompt) String() string {
 	buffer := "%{\033[0m%}" // Start with a clean format.
 	nextPos := 0
 

@@ -4,37 +4,45 @@ package prompt
 
 import "os/exec"
 import "path"
+import "strings"
 
 type GitInfo struct {
+  // Name of this Git repo.
   Repo string
+  // The name of the current branch, or a short hash if we are in a detached
+  // head.
   Branch string
 }
 
 // Queries GitInfo for the repository that parents 'pwd'.
 func GetGitInfo(pwd string) (*GitInfo, error) {
-  var repoPath, err = runCommand(pwd, "git", "rev-parse", "--show-toplevel")
+  repoPath, err := runCommand(pwd, "git", "rev-parse", "--show-toplevel")
   if err != nil {
-    repoPath = ""
+    return nil, err
   }
 
-  var branch, err = runCommand(pwd, "git", "symbolic-ref", "HEAD")
-  if err != nil {
+  branch, err := runCommand(pwd, "git", "symbolic-ref", "HEAD")
+  if err == nil {
+    var branchParts = strings.Split(branch, "/")
+    branch = branchParts[len(branchParts)-1]
+  } else {
     // We may be in a detached head. In that case, find the hash of the detached
     // head revision.
     branch, err = runCommand(pwd, "git", "rev-parse", "--short", "HEAD")
     if err != nil {
-      branch = ""
+      return nil, err
     }
   }
 
   var info = new (GitInfo)
-  info.Repo = path.Base(string(repoPath))
-  info.Branch = branch
+  info.Repo = strings.TrimSpace(path.Base(string(repoPath)))
+  info.Branch = strings.TrimSpace(branch)
   return info, nil
 }
 
 func runCommand(pwd string, name string, arg ...string) (string, error) {
-  var cmd = exec.Command(name, arg)
+  var cmd = exec.Command(name, arg...)
   cmd.Dir = pwd
-  return cmd.Output()
+  text, err := cmd.Output()
+  return string(text), err
 }
