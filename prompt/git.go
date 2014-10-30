@@ -6,7 +6,8 @@ import "os/exec"
 import "path"
 
 type GitInfo struct {
-  RepoName string
+  Repo string
+  Branch string
 }
 
 // Queries GitInfo for the repository that parents 'pwd'.
@@ -20,14 +21,15 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
   if err != nil {
     // We may be in a detached head. In that case, find the hash of the detached
     // head revision.
-    branch, err = runCommand(pwd, "git", "rev-parse", "HEAD", "--abbrev-ref")
+    branch, err = runCommand(pwd, "git", "rev-parse", "--short", "HEAD")
     if err != nil {
       branch = ""
     }
   }
 
   var info = new (GitInfo)
-  info.RepoName = path.Base(string(repoPath))
+  info.Repo = path.Base(string(repoPath))
+  info.Branch = branch
   return info, nil
 }
 
