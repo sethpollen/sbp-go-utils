@@ -3,12 +3,13 @@
 package prompt
 
 import "fmt"
+import "unicode/utf8"
 
 type StyleMarker struct {
 	// A string containing an ANSI terminal escape code.
 	escapeCode string
 	// The position in the prompt string where this escape code should be
-	// inserted.
+	// inserted. This is a byte offset; it is agnostic to UTF-8 rune encoding.
 	pos int
 }
 
@@ -31,7 +32,7 @@ const (
 )
 
 func (prompt *Prompt) Len() int {
-	return len(prompt.text)
+	return utf8.RuneCountInString(prompt.text)
 }
 
 // Appends some text to this Prompt.

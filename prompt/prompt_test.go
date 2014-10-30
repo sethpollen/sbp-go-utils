@@ -4,14 +4,16 @@ import "strconv"
 import "testing"
 import "time"
 
-var env = PromptEnv{time.Unix(0, 0), "/home/me", "myhost.example.com"}
+var env = PromptEnv{time.Unix(0, 0), "/home/me", "", "myhost.example.com"}
 
 func assertMakePrompt(t *testing.T, expected string, maxWidth int, info string,
 	pwd string, exitCode int, flag string) {
-	var p = MakePrompt(&env, maxWidth, info, pwd, exitCode, flag)
-	if p.Dump() != expected {
+	var myEnv = env
+	myEnv.pwd = pwd
+	var p = MakePrompt(&myEnv, maxWidth, info, exitCode, flag)
+	if p.String() != expected {
 		t.Errorf("Expected %s\nGot %s",
-			strconv.Quote(expected), strconv.Quote(p.Dump()))
+			strconv.Quote(expected), strconv.Quote(p.String()))
 	}
 }
 
