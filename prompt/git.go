@@ -16,7 +16,7 @@ type GitInfo struct {
   Dirty bool
 }
 
-// Queries GitInfo for the repository that parents 'pwd'.
+// Queries a GitInfo for the repository that parents 'pwd'.
 func GetGitInfo(pwd string) (*GitInfo, error) {
   repoPath, err := runCommand(pwd, "git", "rev-parse", "--show-toplevel")
   if err != nil {
@@ -46,6 +46,19 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
   info.Branch = strings.TrimSpace(branch)
   info.Dirty = (status != "")
   return info, nil
+}
+
+// Formats a GitInfo as a string, suitable for use as an 'info' string in a
+// prompt.
+func (info *GitInfo) String() string {
+  var str = info.Repo
+  if info.Repo != info.Branch {
+    str += ": " + info.Branch
+  }
+  if info.Dirty {
+    str += " *"
+  }
+  return str
 }
 
 func runCommand(pwd string, name string, arg ...string) (string, error) {

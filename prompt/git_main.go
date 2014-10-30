@@ -6,5 +6,10 @@ import "fmt"
 import "code.google.com/p/sbp-go-utils/prompt"
 
 func main() {
-  fmt.Println(prompt.GetGitInfo("."))
+  info, err := prompt.GetGitInfo(".")
+  if err != nil {
+    fmt.Println(err)
+  } else {
+    fmt.Println(info)
+  }
 }
