@@ -13,12 +13,17 @@ type GitInfo struct {
 func GetGitInfo(pwd string) (*GitInfo, error) {
   var repoPath, err = runCommand(pwd, "git", "rev-parse", "--show-toplevel")
   if err != nil {
-    return nil, err
+    repoPath = ""
   }
 
-  var branches, err = runCommand(pwd, "git", "branch", "--no-color")
+  var branch, err = runCommand(pwd, "git", "symbolic-ref", "HEAD")
   if err != nil {
-    return nil, err
+    // We may be in a detached head. In that case, find the hash of the detached
+    // head revision.
+    branch, err = runCommand(pwd, "git", "rev-parse", "HEAD", "--abbrev-ref")
+    if err != nil {
+      branch = ""
+    }
   }
 
   var info = new (GitInfo)
