@@ -4,6 +4,7 @@ package prompt
 
 import "fmt"
 import "os"
+import "os/user"
 import "strconv"
 import "strings"
 import "time"
@@ -23,17 +24,26 @@ type PromptEnv struct {
 func DefaultPromptEnv() *PromptEnv {
 	var env = new(PromptEnv)
 	env.Now = time.Now()
-	env.Home = os.Getenv("HOME")
-	env.Pwd = os.Getenv("PWD")
+
+  user, err := user.Current()
+  if err != nil {
+    env.Home = ""
+  } else {
+	  env.Home = user.HomeDir
+  }
+
+  env.Pwd, _ = os.Getwd()
 	env.Hostname, _ = os.Hostname()
-	var widthStr = os.Getenv("COLUMNS")
+
+  var widthStr = os.Getenv("COLUMNS")
 	width, err := strconv.ParseInt(widthStr, 10, 32)
 	if err != nil {
 		// Pick a reasonable default.
 		width = 100
 	}
 	env.Width = int(width)
-	return env
+
+  return env
 }
 
 // Generates a shell prompt string.
