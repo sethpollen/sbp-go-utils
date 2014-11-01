@@ -1,3 +1,7 @@
+// TODO: there should just be one main file for "prompt". We may want to rename
+// the "prompt" package to sbp_shprompt and corp_shprompt. Use flags to indicate
+// whether a prompt stirng or shell title is desired.
+
 package main
 
 import "code.google.com/p/sbp-go-utils/prompt"
