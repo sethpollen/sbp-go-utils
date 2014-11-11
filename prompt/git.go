@@ -11,6 +11,8 @@ type GitInfo struct {
 	RepoName string
   // Full path to the root of this Git repo.
   RepoPath string
+  // Pwd, relative to the root repo path.
+  RelativePwd string
 	// The name of the current branch, or a short hash if we are in a detached
 	// head.
 	Branch string
@@ -45,9 +47,21 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 	}
 
 	var info = new(GitInfo)
-	info.RepoPath = strings.TrimSpace(repoPath)
-	info.RepoName = strings.TrimSpace(path.Base(repoPath))
-	info.Branch = strings.TrimSpace(branch)
+	info.RepoPath = repoPath
+	info.RepoName = path.Base(repoPath)
+
+  if strings.HasPrefix(pwd, repoPath) {
+    info.RelativePwd = pwd[len(repoPath):]
+    // If the relative PWD is more than just "/", remove the leading slash.
+    if strings.HasPrefix(info.RelativePwd, "/") && len(info.RelativePwd) >= 2 {
+      info.RelativePwd = info.RelativePwd[1:]
+    }
+  } else {
+    // We can't seem to remove the repo prefix, so just preserve the PWD.
+    info.RelativePwd = pwd
+  }
+
+	info.Branch = branch
 	info.Dirty = (status != "")
 	return info, nil
 }
@@ -69,5 +83,5 @@ func runCommand(pwd string, name string, arg ...string) (string, error) {
 	var cmd = exec.Command(name, arg...)
 	cmd.Dir = pwd
 	text, err := cmd.Output()
-	return string(text), err
+	return strings.TrimSpace(string(text)), err
 }

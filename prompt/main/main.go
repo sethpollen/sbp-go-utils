@@ -4,7 +4,6 @@ import "code.google.com/p/sbp-go-utils/prompt"
 import "flag"
 import "fmt"
 import "os"
-import "strings"
 
 // Optional flags.
 var exitCode = flag.Int("exitcode", 0,
@@ -38,15 +37,7 @@ func main() {
   if err == nil {
     info = gitInfo.String()
     flag = "git"
-
-    // Remove the Git repo path from the PWD.
-    var repoPath = gitInfo.RepoPath
-    if !strings.HasSuffix(repoPath, "/") {
-      repoPath += "/"
-    }
-    if strings.HasPrefix(env.Pwd, repoPath) {
-      env.Pwd = env.Pwd[len(repoPath):]
-    }
+    env.Pwd = gitInfo.RelativePwd
   }
 
   // Send results to stdout.
