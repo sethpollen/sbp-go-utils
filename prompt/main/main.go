@@ -41,7 +41,7 @@ func main() {
 
     // Remove the Git repo path from the PWD.
     var repoPath = gitInfo.RepoPath
-    if !strings.Hassuffix(repoPath, "/") {
+    if !strings.HasSuffix(repoPath, "/") {
       repoPath += "/"
     }
     if strings.HasPrefix(env.Pwd, repoPath) {
