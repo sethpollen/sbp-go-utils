@@ -5,7 +5,6 @@ package prompt
 import "fmt"
 import "os"
 import "os/user"
-import "strconv"
 import "strings"
 import "time"
 import "unicode/utf8"
@@ -20,8 +19,9 @@ type PromptEnv struct {
 	Width int
 }
 
-// Generates a PromptEnv based on current environment variables.
-func DefaultPromptEnv() *PromptEnv {
+// Generates a PromptEnv based on current environment variables. The maximum
+// number of characters which the prompt may occupy must be passed as 'width'.
+func DefaultPromptEnv(width int) *PromptEnv {
 	var env = new(PromptEnv)
 	env.Now = time.Now()
 
@@ -34,16 +34,7 @@ func DefaultPromptEnv() *PromptEnv {
 
   env.Pwd, _ = os.Getwd()
 	env.Hostname, _ = os.Hostname()
-
-  var widthStr = os.Getenv("COLUMNS")
-  fmt.Print(widthStr + "\n") // TODO:
-	width, err := strconv.ParseInt(widthStr, 10, 32)
-	if err != nil {
-    fmt.Print("Defaulting width to 100\n") // TODO:
-		// Pick a reasonable default.
-		width = 100
-	}
-	env.Width = int(width)
+	env.Width = width
 
   return env
 }

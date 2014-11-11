@@ -5,24 +5,33 @@ import "flag"
 import "fmt"
 import "os"
 
+// Optional flags.
 var exitCode = flag.Int("exitcode", 0,
   "Exit code of previous command. If absent, 0 is assumed.")
+
+// Required flags.
 var format = flag.String("format", "",
   "Format to output. Possible values are \"prompt\" and \"title\".")
 var width = flag.Int("width", -1,
-  "Maximum number of characters which the output may occupy. If absent, the " +
-  "value of $COLUMNS is used.")
+  "Maximum number of characters which the output may occupy.")
 
 func main() {
   flag.Parse()
 
+  if *width < 0 {
+    fmt.Fprintln(os.Stderr, "--width must be specified")
+    os.Exit(1)
+    return
+  }
+  if *format == "" {
+    fmt.Fprintln(os.Stderr, "--format must be specified")
+    os.Exit(1)
+    return
+  }
+
+  var env = prompt.DefaultPromptEnv(*width)
   var info = ""
   var flag = ""
-
-  var env = prompt.DefaultPromptEnv()
-  if *width >= 0 {
-    env.Width = *width
-  }
 
   gitInfo, err := prompt.GetGitInfo(env.Pwd)
   if err == nil {
