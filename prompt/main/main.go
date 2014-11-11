@@ -38,8 +38,14 @@ func main() {
   if err == nil {
     info = gitInfo.String()
     flag = "git"
-    if strings.HasPrefix(env.Pwd, gitInfo.RepoPath) {
-      env.Pwd = env.Pwd[len(gitInfo.RepoPath):]
+
+    // Remove the Git repo path from the PWD.
+    var repoPath = gitInfo.RepoPath
+    if !strings.Hassuffix(repoPath, "/") {
+      repoPath += "/"
+    }
+    if strings.HasPrefix(env.Pwd, repoPath) {
+      env.Pwd = env.Pwd[len(repoPath):]
     }
   }
 
