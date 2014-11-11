@@ -1,5 +1,4 @@
 // Library for querying info from a local Git repository.
-
 package prompt
 
 import "os/exec"
@@ -9,8 +8,6 @@ import "strings"
 type GitInfo struct {
 	// Name of this Git repo.
 	RepoName string
-  // Full path to the root of this Git repo.
-  RepoPath string
   // Pwd, relative to the root repo path.
   RelativePwd string
 	// The name of the current branch, or a short hash if we are in a detached
@@ -47,7 +44,6 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 	}
 
 	var info = new(GitInfo)
-	info.RepoPath = repoPath
 	info.RepoName = path.Base(repoPath)
 
   if strings.HasPrefix(pwd, repoPath) {

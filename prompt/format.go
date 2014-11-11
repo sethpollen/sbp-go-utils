@@ -1,5 +1,4 @@
 // Library for inserting ANSI escapes into prompt strings.
-
 package prompt
 
 import "fmt"

@@ -1,5 +1,4 @@
 // Library for constructing prompt strings of the specific form that I like.
-
 package prompt
 
 import "fmt"
