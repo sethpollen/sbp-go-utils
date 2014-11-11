@@ -21,14 +21,14 @@ type Prompt struct {
 }
 
 const (
-	Black   = iota
-	Red     = iota
-	Green   = iota
-	Yellow  = iota
-	Blue    = iota
-	Magenta = iota
-	Cyan    = iota
-	White   = iota
+	Black = iota
+	Red
+	Green
+	Yellow
+	Blue
+	Magenta
+	Cyan
+	White
 )
 
 func (prompt *Prompt) Len() int {
