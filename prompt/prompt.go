@@ -36,6 +36,7 @@ func DefaultPromptEnv() *PromptEnv {
 	env.Hostname, _ = os.Hostname()
 
   var widthStr = os.Getenv("COLUMNS")
+  fmt.Print(widthStr + "\n") // TODO:
 	width, err := strconv.ParseInt(widthStr, 10, 32)
 	if err != nil {
     fmt.Print("Defaulting width to 100\n") // TODO:
