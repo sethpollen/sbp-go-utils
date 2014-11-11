@@ -45,18 +45,7 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 
 	var info = new(GitInfo)
 	info.RepoName = path.Base(repoPath)
-
-  if strings.HasPrefix(pwd, repoPath) {
-    info.RelativePwd = pwd[len(repoPath):]
-    // If the relative PWD is more than just "/", remove the leading slash.
-    if strings.HasPrefix(info.RelativePwd, "/") && len(info.RelativePwd) >= 2 {
-      info.RelativePwd = info.RelativePwd[1:]
-    }
-  } else {
-    // We can't seem to remove the repo prefix, so just preserve the PWD.
-    info.RelativePwd = pwd
-  }
-
+  info.RelativePwd = RelativePath(pwd, repoPath)
 	info.Branch = branch
 	info.Dirty = (status != "")
 	return info, nil
