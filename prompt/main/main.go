@@ -4,6 +4,7 @@ import "code.google.com/p/sbp-go-utils/prompt"
 import "flag"
 import "fmt"
 import "os"
+import "strings"
 
 // Optional flags.
 var exitCode = flag.Int("exitcode", 0,
@@ -37,6 +38,7 @@ func main() {
   if err == nil {
     info = gitInfo.String()
     flag = "git"
+    env.Pwd = strings.TrimPrefix(env.Pwd, gitInfo.RepoPath)
   }
 
   // Send results to stdout.

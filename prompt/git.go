@@ -8,7 +8,9 @@ import "strings"
 
 type GitInfo struct {
 	// Name of this Git repo.
-	Repo string
+	RepoName string
+  // Full path to the root of this Git repo.
+  RepoPath string
 	// The name of the current branch, or a short hash if we are in a detached
 	// head.
 	Branch string
@@ -43,7 +45,8 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 	}
 
 	var info = new(GitInfo)
-	info.Repo = strings.TrimSpace(path.Base(string(repoPath)))
+	info.RepoPath = strings.TrimSpace(repoPath)
+	info.RepoName = strings.TrimSpace(path.Base(repoPath))
 	info.Branch = strings.TrimSpace(branch)
 	info.Dirty = (status != "")
 	return info, nil
@@ -52,8 +55,8 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 // Formats a GitInfo as a string, suitable for use as an 'info' string in a
 // prompt.
 func (info *GitInfo) String() string {
-	var str = info.Repo
-	if info.Repo != info.Branch {
+	var str = info.RepoName
+	if info.RepoName != info.Branch {
 		str += ": " + info.Branch
 	}
 	if info.Dirty {
