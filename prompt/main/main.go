@@ -38,7 +38,9 @@ func main() {
   if err == nil {
     info = gitInfo.String()
     flag = "git"
-    env.Pwd = strings.TrimPrefix(env.Pwd, gitInfo.RepoPath)
+    if strings.HasPrefix(env.Pwd, gitInfo.RepoPath) {
+      env.Pwd = env.Pwd[len(gitInfo.RepoPath):]
+    }
   }
 
   // Send results to stdout.
