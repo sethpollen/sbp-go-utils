@@ -13,9 +13,13 @@ func RelativePath(path string, prefix string) string {
   // Remove the prefix.
   path = path[len(prefix):]
 
-  // Remove a leading slash, unless the path is just a slash.
-  if strings.HasPrefix(path, "/") && path != "/" {
-    path = path[1:]
+  if (path == "") || (path == "/") {
+    return "/"
+  }
+
+  // Remove a leading slash.
+  if strings.HasPrefix(path, "/") {
+    return path[1:]
   }
 
   return path
