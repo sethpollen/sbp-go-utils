@@ -45,7 +45,6 @@ func DoMain(matchers []PwdMatcher) {
   }
 
   // Send results to stdout.
-  // Interpret the "format" flag.
   switch *format {
     case "prompt": fmt.Print(MakePrompt(env, *exitCode))
     case "title": fmt.Print(MakeTitle(env))
