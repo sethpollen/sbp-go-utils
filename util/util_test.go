@@ -53,13 +53,13 @@ func TestEvalCommand(t *testing.T) {
   }
 }
 
-func TestEvalCommandAsync(t *testing.T) {
+func TestEvalCommandChan(t *testing.T) {
   var outputChan = make(chan string, 1)
   var errChan = make(chan error, 1)
   var output string
   var err error
 
-  EvalCommandAsync(outputChan, errChan, "/", "echo", "hi")
+  EvalCommandChan(outputChan, errChan, "/", "echo", "hi")
   select {
     case output = <-outputChan:
       if output != "hi" {
@@ -69,7 +69,7 @@ func TestEvalCommandAsync(t *testing.T) {
       t.Errorf("Got an error: %v", err)
   }
 
-  EvalCommandAsync(outputChan, errChan, "/", "not-a-valid-command")
+  EvalCommandChan(outputChan, errChan, "/", "not-a-valid-command")
   select {
     case output = <-outputChan:
       t.Errorf("Didn't get an error")

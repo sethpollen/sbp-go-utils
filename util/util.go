@@ -35,7 +35,7 @@ func EvalCommand(pwd string, name string, args ...string) (string, error) {
 
 // Async version of EvalCommand. Will either send one string containing the
 // command's stdout to 'output' or ssend one error to 'err'.
-func EvalCommandAsync(output chan<- string, err chan<- error,
+func EvalCommandChan(output chan<- string, err chan<- error,
   pwd string, name string, args ...string) {
   myOutput, myErr := EvalCommand(pwd, name, args...)
   if myErr != nil {
