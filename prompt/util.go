@@ -27,7 +27,7 @@ func RelativePath(path string, prefix string) string {
 }
 
 // Runs 'name' in 'pwd' with 'args', returning its stdout.
-func RunCommand(pwd string, name string, args ...string) (string, error) {
+func EvalCommand(pwd string, name string, args ...string) (string, error) {
   var cmd = exec.Command(name, args...)
   cmd.Dir = pwd
   text, err := cmd.Output()

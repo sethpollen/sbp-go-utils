@@ -38,8 +38,8 @@ func TestRelativePathLoneSlash(t *testing.T) {
   }
 }
 
-func TestRunCommand(t *testing.T) {
-  r, err := RunCommand("/", "echo", "hi")
+func TestEvalCommand(t *testing.T) {
+  r, err := EvalCommand("/", "echo", "hi")
   if err != nil {
     t.Errorf("Got an error: %v", err)
   }
@@ -47,7 +47,7 @@ func TestRunCommand(t *testing.T) {
     t.Errorf("Expected \"hi\", got \"%s\"", r)
   }
 
-  r, err = RunCommand("/", "not-a-valid-command")
+  r, err = EvalCommand("/", "not-a-valid-command")
   if err == nil {
     t.Errorf("Expected an error")
   }
