@@ -64,6 +64,18 @@ func (info *GitInfo) String() string {
 	return str
 }
 
+// A PwdMatcher that matches any directory inside a Git repo.
+var GitMatcher PwdMatcher = func(env *PromptEnv) bool {
+  gitInfo, err := GetGitInfo(env.Pwd)
+  if err != nil {
+    return false
+  }
+  env.Info = gitInfo.String()
+  env.Flag = "git"
+  env.Pwd = gitInfo.RelativePwd
+  return true
+}
+
 func runCommand(pwd string, name string, arg ...string) (string, error) {
 	var cmd = exec.Command(name, arg...)
 	cmd.Dir = pwd

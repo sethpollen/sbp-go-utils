@@ -53,15 +53,3 @@ func DoMain(matchers []PwdMatcher) {
       os.Exit(1)
   }
 }
-
-// A PwdMatcher that matches any directory inside a Git repo.
-var GitMatcher PwdMatcher = func(env *PromptEnv) bool {
-  gitInfo, err := GetGitInfo(env.Pwd)
-  if err == nil {
-    env.Info = gitInfo.String()
-    env.Flag = "git"
-    env.Pwd = gitInfo.RelativePwd
-    return true
-  }
-  return false
-}
