@@ -16,6 +16,8 @@ type PromptEnv struct {
 	Hostname string
   // Text to include in the prompt, along with the PWD.
   Info     string
+  // A secondary info string. Displayed using $RPROMPT.
+  Info2    string
   // A short string to place before the final $ in the prompt.
   Flag     string
 	// Maximum number of characters which prompt may occupy horizontally.
@@ -38,6 +40,7 @@ func MakePromptEnv(width int) *PromptEnv {
   env.Pwd, _ = os.Getwd()
 	env.Hostname, _ = os.Hostname()
   env.Info = ""
+  env.Info2 = ""
   env.Flag = ""
 	env.Width = width
 
@@ -125,6 +128,19 @@ func MakePrompt(env *PromptEnv, exitCode int) *Prompt {
 	fullPrompt.Write("\n" + env.Flag + "$ ")
 
 	return fullPrompt
+}
+
+// Generates a shell RPROMPT string. This will be printed on the right-hand
+// side of the second line of the prompt. It will disappear if the user types
+// a long command, so it should not be super important. env.Info2 will be the
+// content displayed.
+func MakeRPrompt(env *PromptEnv) *Prompt {
+  var rPrompt = new(Prompt)
+  if env.Info2 != "" {
+    rPrompt.Style(Yellow, false)
+    rPrompt.Write(env.Info2)
+  }
+  return rPrompt
 }
 
 // Generates a terminal emulator title bar string. Similar to a shell prompt

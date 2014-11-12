@@ -14,6 +14,8 @@ var exitCode = flag.Int("exitcode", 0,
   "Exit code of previous command. If absent, 0 is assumed.")
 var promptFile = flag.String("prompt_file", "",
   "File to write prompt string to.")
+var rPromptFile = flag.String("rprompt_file", "",
+  "File to write RPROMPT string to.")
 var titleFile = flag.String("title_file", "",
   "File to write title string to.")
 
@@ -43,6 +45,13 @@ func DoMain(matchers []PwdMatcher) error {
   if *promptFile != "" {
     var prompt = MakePrompt(env, *exitCode).String()
     err := ioutil.WriteFile(*promptFile, []byte(prompt), 0770)
+    if err != nil {
+      return err
+    }
+  }
+  if *rPromptFile != "" {
+    var rPrompt = MakeRPrompt(env).String()
+    err := ioutil.WriteFile(*rPromptFile, []byte(rPrompt), 0770)
     if err != nil {
       return err
     }
