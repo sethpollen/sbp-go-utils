@@ -1,8 +1,10 @@
 // Library for querying info from a local Git repository.
-package prompt
+package git
 
 import "path"
 import "strings"
+import "code.google.com/p/sbp-go-utils/prompt"
+import "code.google.com/p/sbp-go-utils/util"
 
 type GitInfo struct {
 	// Name of this Git repo.
@@ -19,32 +21,32 @@ type GitInfo struct {
 // Queries a GitInfo for the repository that parents 'pwd'. If 'pwd' is not in
 // a Git repository, returns an error.
 func GetGitInfo(pwd string) (*GitInfo, error) {
-	repoPath, err := EvalCommand(pwd, "git", "rev-parse", "--show-toplevel")
+	repoPath, err := util.EvalCommand(pwd, "git", "rev-parse", "--show-toplevel")
 	if err != nil {
 		return nil, err
 	}
 
-	branch, err := EvalCommand(pwd, "git", "symbolic-ref", "HEAD")
+	branch, err := util.EvalCommand(pwd, "git", "symbolic-ref", "HEAD")
 	if err == nil {
 		var branchParts = strings.Split(branch, "/")
 		branch = branchParts[len(branchParts)-1]
 	} else {
 		// We may be in a detached head. In that case, find the hash of the detached
 		// head revision.
-		branch, err = EvalCommand(pwd, "git", "rev-parse", "--short", "HEAD")
+		branch, err = util.EvalCommand(pwd, "git", "rev-parse", "--short", "HEAD")
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	status, err := EvalCommand(pwd, "git", "status", "--porcelain")
+	status, err := util.EvalCommand(pwd, "git", "status", "--porcelain")
 	if err != nil {
 		return nil, err
 	}
 
 	var info = new(GitInfo)
 	info.RepoName = path.Base(repoPath)
-  info.RelativePwd = RelativePath(pwd, repoPath)
+  info.RelativePwd = util.RelativePath(pwd, repoPath)
 	info.Branch = branch
 	info.Dirty = (status != "")
 	return info, nil
@@ -64,7 +66,7 @@ func (info *GitInfo) String() string {
 }
 
 // A PwdMatcher that matches any directory inside a Git repo.
-var GitMatcher PwdMatcher = func(env *PromptEnv) bool {
+var GitMatcher prompt.PwdMatcher = func(env *prompt.PromptEnv) bool {
   gitInfo, err := GetGitInfo(env.Pwd)
   if err != nil {
     return false

@@ -1,5 +1,4 @@
-// My utilities for dealing with paths.
-package prompt
+package util
 
 import "os/exec"
 import "strings"
