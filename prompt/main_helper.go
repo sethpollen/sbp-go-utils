@@ -42,14 +42,14 @@ func DoMain(matchers []PwdMatcher) error {
   // Write results.
   if *promptFile != "" {
     var prompt = MakePrompt(env, *exitCode).String()
-    err := ioutil.WriteFile(*promptFile, []byte(prompt), 0777)
+    err := ioutil.WriteFile(*promptFile, []byte(prompt), 0770)
     if err != nil {
       return err
     }
   }
   if *titleFile != "" {
     var title = MakeTitle(env)
-    err := ioutil.WriteFile(*titleFile, []byte(title), 0777)
+    err := ioutil.WriteFile(*titleFile, []byte(title), 0770)
     if err != nil {
       return err
     }
