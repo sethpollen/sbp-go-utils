@@ -100,7 +100,7 @@ func MakePrompt(env *PromptEnv, exitCode int) *Prompt {
 		pwdWidth = 0
 	}
 	var pwdOnItsOwnLine = false
-	if env.Width >= 25 && pwdWidth < 25 {
+	if pwdWidth < 20 && utf8.RuneCountInString(pwd) >= 20  && env.Width >= 20 {
 		// Don't cram the PWD into a tiny space; put it on its own line.
 		pwdWidth = env.Width
 		pwdOnItsOwnLine = true
