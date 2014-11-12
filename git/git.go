@@ -18,28 +18,39 @@ type GitInfo struct {
 	Dirty bool
 }
 
+// Synchronous wrapper around util.EvalCommand.
+func evalCommand(pwd string, name string, args ...string) (string, error) {
+  var outputChan = make(chan string)
+  var errorChan = make(chan error)
+  go util.EvalCommand(outputChan, errorChan, pwd, name, args...)
+  select {
+    case err := <-errorChan: return "", err
+    case output := <-outputChan: return output, nil
+  }
+}
+
 // Queries a GitInfo for the repository that parents 'pwd'. If 'pwd' is not in
 // a Git repository, returns an error.
 func GetGitInfo(pwd string) (*GitInfo, error) {
-	repoPath, err := util.EvalCommand(pwd, "git", "rev-parse", "--show-toplevel")
+	repoPath, err := evalCommand(pwd, "git", "rev-parse", "--show-toplevel")
 	if err != nil {
 		return nil, err
 	}
 
-	branch, err := util.EvalCommand(pwd, "git", "symbolic-ref", "HEAD")
+	branch, err := evalCommand(pwd, "git", "symbolic-ref", "HEAD")
 	if err == nil {
 		var branchParts = strings.Split(branch, "/")
 		branch = branchParts[len(branchParts)-1]
 	} else {
 		// We may be in a detached head. In that case, find the hash of the detached
 		// head revision.
-		branch, err = util.EvalCommand(pwd, "git", "rev-parse", "--short", "HEAD")
+		branch, err = evalCommand(pwd, "git", "rev-parse", "--short", "HEAD")
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	status, err := util.EvalCommand(pwd, "git", "status", "--porcelain")
+	status, err := evalCommand(pwd, "git", "status", "--porcelain")
 	if err != nil {
 		return nil, err
 	}

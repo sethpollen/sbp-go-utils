@@ -39,27 +39,12 @@ func TestRelativePathLoneSlash(t *testing.T) {
 }
 
 func TestEvalCommand(t *testing.T) {
-  output, err := EvalCommand("/", "echo", "hi")
-  if err != nil {
-    t.Errorf("Got an error: %v", err)
-  }
-  if output != "hi" {
-    t.Errorf("Expected \"hi\", got \"%s\"", output)
-  }
-
-  output, err = EvalCommand("/", "not-a-valid-command")
-  if err == nil {
-    t.Errorf("Expected an error")
-  }
-}
-
-func TestEvalCommandChan(t *testing.T) {
   var outputChan = make(chan string, 1)
   var errChan = make(chan error, 1)
   var output string
   var err error
 
-  EvalCommandChan(outputChan, errChan, "/", "echo", "hi")
+  EvalCommand(outputChan, errChan, "/", "echo", "hi")
   select {
     case output = <-outputChan:
       if output != "hi" {
@@ -69,7 +54,7 @@ func TestEvalCommandChan(t *testing.T) {
       t.Errorf("Got an error: %v", err)
   }
 
-  EvalCommandChan(outputChan, errChan, "/", "not-a-valid-command")
+  EvalCommand(outputChan, errChan, "/", "not-a-valid-command")
   select {
     case output = <-outputChan:
       t.Errorf("Didn't get an error")

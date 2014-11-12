@@ -25,23 +25,17 @@ func RelativePath(path string, prefix string) string {
   return path
 }
 
-// Runs 'name' in 'pwd' with 'args', returning its stdout.
-func EvalCommand(pwd string, name string, args ...string) (string, error) {
+// Runs 'name' in 'pwd' with 'args'.  Will either send one string containing the
+// command's stdout to 'outputChan' or send one error to 'errorChan'.
+func EvalCommand(outputChan chan<-string, errorChan chan<-error, pwd string,
+    name string, args ...string) {
   var cmd = exec.Command(name, args...)
   cmd.Dir = pwd
   text, err := cmd.Output()
-  return strings.TrimSpace(string(text)), err
-}
-
-// Async version of EvalCommand. Will either send one string containing the
-// command's stdout to 'output' or ssend one error to 'err'.
-func EvalCommandChan(output chan<- string, err chan<- error,
-  pwd string, name string, args ...string) {
-  myOutput, myErr := EvalCommand(pwd, name, args...)
-  if myErr != nil {
-    err <- myErr
+  if err != nil {
+    errorChan <- err
   } else {
-    output <- myOutput
+    outputChan <- strings.TrimSpace(string(text))
   }
 }
 
