@@ -1,19 +1,21 @@
 // Helper library for implementers of main functions which use build prompts.
 package prompt
 
+import "errors"
 import "flag"
-import "fmt"
-import "os"
+import "io/ioutil"
 
 // Required flags.
-var format = flag.String("format", "",
-  "Format to output. Possible values are \"prompt\" and \"title\".")
 var width = flag.Int("width", -1,
   "Maximum number of characters which the output may occupy.")
 
 // Optional flags.
 var exitCode = flag.Int("exitcode", 0,
   "Exit code of previous command. If absent, 0 is assumed.")
+var promptFile = flag.String("prompt_file", "",
+  "File to write prompt string to.")
+var titleFile = flag.String("title_file", "",
+  "File to write title string to.")
 
 // Type for a function which may match a PWD and produce an info string.
 // If the match succeeds, modifies 'env' in-place and returns true. Otherwise,
@@ -22,19 +24,12 @@ type PwdMatcher func(env *PromptEnv) bool
 
 // Entry point. Executes 'matchers' against the current PWD, stopping once one
 // of them returns true.
-func DoMain(matchers []PwdMatcher) {
+func DoMain(matchers []PwdMatcher) error {
   flag.Parse()
 
   // Check flags.
   if *width < 0 {
-    fmt.Fprintln(os.Stderr, "--width must be specified")
-    os.Exit(1)
-    return
-  }
-  if *format == "" {
-    fmt.Fprintln(os.Stderr, "--format must be specified")
-    os.Exit(1)
-    return
+    return errors.New("--width must be specified")
   }
 
   var env = MakePromptEnv(*width)
@@ -44,12 +39,21 @@ func DoMain(matchers []PwdMatcher) {
     }
   }
 
-  // Send results to stdout.
-  switch *format {
-    case "prompt": fmt.Print(MakePrompt(env, *exitCode))
-    case "title": fmt.Print(MakeTitle(env))
-    default:
-      fmt.Fprintf(os.Stderr, "Unrecognized value for --format: %s\n", *format)
-      os.Exit(1)
+  // Write results.
+  if *promptFile != "" {
+    var prompt = MakePrompt(env, *exitCode).String()
+    err := ioutil.WriteFile(*promptFile, []byte(prompt), 0)
+    if err != nil {
+      return err
+    }
   }
+  if *titleFile != "" {
+    var title = MakeTitle(env)
+    err := ioutil.WriteFile(*titleFile, []byte(title), 0)
+    if err != nil {
+      return err
+    }
+  }
+
+  return nil
 }
