@@ -14,13 +14,17 @@ type PromptEnv struct {
 	Home     string
 	Pwd      string
 	Hostname string
+  // Text to include in the prompt, along with the PWD.
+  Info     string
+  // A short string to place before the final $ in the prompt.
+  Flag     string
 	// Maximum number of characters which prompt may occupy horizontally.
 	Width int
 }
 
 // Generates a PromptEnv based on current environment variables. The maximum
 // number of characters which the prompt may occupy must be passed as 'width'.
-func DefaultPromptEnv(width int) *PromptEnv {
+func MakePromptEnv(width int) *PromptEnv {
 	var env = new(PromptEnv)
 	env.Now = time.Now()
 
@@ -33,17 +37,16 @@ func DefaultPromptEnv(width int) *PromptEnv {
 
   env.Pwd, _ = os.Getwd()
 	env.Hostname, _ = os.Hostname()
+  env.Info = ""
+  env.Flag = ""
 	env.Width = width
 
   return env
 }
 
 // Generates a shell prompt string.
-//   info - An "info" string, which appears next to the PWD.
 //   exitCode - The result code of the previous shell command.
-//   flag - A short "flag" string, which appears before the final $.
-func MakePrompt(env *PromptEnv, info string, exitCode int,
-	flag string) *Prompt {
+func MakePrompt(env *PromptEnv, exitCode int) *Prompt {
 	// If the hostname is a full domain name, remove all but the first domain
 	// component.
 	var shortHostname = strings.SplitN(env.Hostname, ".", 2)[0]
@@ -73,11 +76,11 @@ func MakePrompt(env *PromptEnv, info string, exitCode int,
 	promptBeforePwd.Write(" ")
 
 	// Info (if we got one).
-	if info != "" {
+	if env.Info != "" {
 		promptBeforePwd.Style(White, false)
 		promptBeforePwd.Write("[")
 		promptBeforePwd.Style(White, true)
-		promptBeforePwd.Write(info)
+		promptBeforePwd.Write(env.Info)
 		promptBeforePwd.Style(White, false)
 		promptBeforePwd.Write("] ")
 	}
@@ -119,15 +122,16 @@ func MakePrompt(env *PromptEnv, info string, exitCode int,
 		fullPrompt.Append(&promptAfterPwd)
 	}
 	fullPrompt.Style(Yellow, true)
-	fullPrompt.Write("\n" + flag + "$ ")
+	fullPrompt.Write("\n" + env.Flag + "$ ")
 
 	return fullPrompt
 }
 
 // Generates a terminal emulator title bar string. Similar to a shell prompt
 // string, but lacks formatting escapes.
-func MakeTitle(env *PromptEnv, info string) string {
-	if info != "" {
+func MakeTitle(env *PromptEnv) string {
+  var info = ""
+	if env.Info != "" {
 		info = fmt.Sprintf("[%s]", info)
 	}
 	var pwdWidth = env.Width - utf8.RuneCountInString(info)
