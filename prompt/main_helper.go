@@ -20,9 +20,14 @@ var titleFile = flag.String("title_file", "",
   "File to write title string to.")
 
 // Type for a function which may match a PWD and produce an info string.
-// If the match succeeds, modifies 'env' in-place and returns true. Otherwise,
-// returns false.
-type PwdMatcher func(env *PromptEnv) bool
+type PwdMatcher interface {
+  // If the match succeeds, modifies 'env' in-place and returns true. Otherwise,
+  // returns false.
+  Match(env *PromptEnv) bool
+
+  // Returns a short string describing this PwdMatcher.
+  Description() string
+}
 
 // Entry point. Executes 'matchers' against the current PWD, stopping once one
 // of them returns true.
@@ -36,7 +41,7 @@ func DoMain(matchers []PwdMatcher) error {
 
   var env = MakePromptEnv(*width)
   for _, matcher := range matchers {
-    if matcher(env) {
+    if matcher.Match(env) {
       break
     }
   }

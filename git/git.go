@@ -77,7 +77,9 @@ func (info *GitInfo) String() string {
 }
 
 // A PwdMatcher that matches any directory inside a Git repo.
-var GitMatcher prompt.PwdMatcher = func(env *prompt.PromptEnv) bool {
+type GitMatcher struct {}
+
+func (self GitMatcher) Match(env *prompt.PromptEnv) bool {
   gitInfo, err := GetGitInfo(env.Pwd)
   if err != nil {
     return false
@@ -86,4 +88,8 @@ var GitMatcher prompt.PwdMatcher = func(env *prompt.PromptEnv) bool {
   env.Flag = "git"
   env.Pwd = gitInfo.RelativePwd
   return true
+}
+
+func (self GitMatcher) Description() string {
+  return "git"
 }
