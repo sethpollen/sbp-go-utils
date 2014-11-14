@@ -4,8 +4,9 @@ package prompt
 import "errors"
 import "flag"
 import "fmt"
-import "log"
 import "io/ioutil"
+import "log"
+import "os"
 import "time"
 
 // Required flags.
