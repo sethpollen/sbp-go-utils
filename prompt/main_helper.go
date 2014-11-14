@@ -92,7 +92,7 @@ func DoMain(matchers []PwdMatcher) error {
       return err
     }
     for name, value := range env.Vars {
-      fmt.Fprintf(file, "%s=\"%s\"\n", name, value)
+      fmt.Fprintf(file, "export %s=\"%s\"\n", name, value)
     }
     err = file.Close()
     if err != nil {
