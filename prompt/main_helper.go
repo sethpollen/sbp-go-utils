@@ -6,7 +6,6 @@ import "flag"
 import "fmt"
 import "io/ioutil"
 import "log"
-import "os"
 import "time"
 
 // Required flags.
@@ -68,34 +67,28 @@ func DoMain(matchers []PwdMatcher) error {
   // Write results.
   if *promptFile != "" {
     var prompt = MakePrompt(env, *exitCode).String()
-    err := ioutil.WriteFile(*promptFile, []byte(prompt), 0770)
+    err := ioutil.WriteFile(*promptFile, []byte(prompt), 0660)
     if err != nil {
       return err
     }
   }
   if *rPromptFile != "" {
     var rPrompt = MakeRPrompt(env).String()
-    err := ioutil.WriteFile(*rPromptFile, []byte(rPrompt), 0770)
+    err := ioutil.WriteFile(*rPromptFile, []byte(rPrompt), 0660)
     if err != nil {
       return err
     }
   }
   if *titleFile != "" {
     var title = MakeTitle(env)
-    err := ioutil.WriteFile(*titleFile, []byte(title), 0770)
+    err := ioutil.WriteFile(*titleFile, []byte(title), 0660)
     if err != nil {
       return err
     }
   }
   if *varFile != "" {
-    file, err := os.Create(*varFile)
-    if err != nil {
-      return err
-    }
-    for name, value := range env.Vars {
-      fmt.Fprintf(file, "export %s=\"%s\"\n", name, value)
-    }
-    err = file.Close()
+    var varText = MakeVarScript(env)
+    err := ioutil.WriteFile(*varFile, []byte(varText), 0660)
     if err != nil {
       return err
     }

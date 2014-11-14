@@ -1,6 +1,7 @@
 // Library for constructing prompt strings of the specific form that I like.
 package prompt
 
+import "bytes"
 import "fmt"
 import "os"
 import "os/user"
@@ -24,8 +25,17 @@ type PromptEnv struct {
 	Width    int
   // Environment variables which should be emitted to the shell which uses this
   // prompt. Values will not be escaped, so don't put any weird characters in
-  // here. Values will be quoted.
-  Vars     map[string]string
+  // here. Values will be quoted. Entries with nil values will be unset in the
+  // shell.
+  Vars     map[string]*string
+}
+
+func (self *PromptEnv) SetVar(name string, value string) {
+  self.Vars[name] = &value
+}
+
+func (self *PromptEnv) UnsetVar(name string) {
+  self.Vars[name] = nil
 }
 
 // Generates a PromptEnv based on current environment variables. The maximum
@@ -47,7 +57,7 @@ func MakePromptEnv(width int) *PromptEnv {
   env.Info2 = ""
   env.Flag = ""
 	env.Width = width
-  env.Vars = make(map[string]string)
+  env.Vars = make(map[string]*string)
 
   return env
 }
@@ -139,6 +149,7 @@ func MakePrompt(env *PromptEnv, exitCode int) *Prompt {
 // side of the second line of the prompt. It will disappear if the user types
 // a long command, so it should not be super important. env.Info2 will be the
 // content displayed.
+// TODO: unit test
 func MakeRPrompt(env *PromptEnv) *Prompt {
   var rPrompt = new(Prompt)
   if env.Info2 != "" {
@@ -187,4 +198,16 @@ func formatPwd(env *PromptEnv, width int) string {
 		}
 	}
 	return pwd
+}
+
+func MakeVarScript(env *PromptEnv) string {
+  var buf = bytes.NewBufferString("")
+  for name, value := range env.Vars {
+    if value == nil {
+      fmt.Fprintf(buf, "unset %s\n", name)
+    } else {
+      fmt.Fprintf(buf, "export %s=\"%s\"\n", name, *value)
+    }
+  }
+  return buf.String()
 }
