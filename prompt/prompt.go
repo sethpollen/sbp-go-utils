@@ -47,6 +47,7 @@ func MakePromptEnv(width int) *PromptEnv {
   env.Info2 = ""
   env.Flag = ""
 	env.Width = width
+  env.Vars = make(map[string]string)
 
   return env
 }
