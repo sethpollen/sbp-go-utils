@@ -3,7 +3,10 @@ package prompt
 
 import "errors"
 import "flag"
+import "fmt"
+import "log"
 import "io/ioutil"
+import "time"
 
 // Required flags.
 var width = flag.Int("width", -1,
@@ -18,6 +21,11 @@ var rPromptFile = flag.String("rprompt_file", "",
   "File to write RPROMPT string to.")
 var titleFile = flag.String("title_file", "",
   "File to write title string to.")
+
+var printTiming = flag.Bool("print_timing", false,
+  "True to log diagnostics about how long each part of the program takes.")
+
+var processStart = time.Now()
 
 // Type for a function which may match a PWD and produce an info string.
 type PwdMatcher interface {
@@ -41,7 +49,11 @@ func DoMain(matchers []PwdMatcher) error {
 
   var env = MakePromptEnv(*width)
   for _, matcher := range matchers {
-    if matcher.Match(env) {
+    LogTime(fmt.Sprintf("Begin matcher \"%s\"", matcher.Description()))
+    var done bool = matcher.Match(env)
+    LogTime(fmt.Sprintf("End matcher \"%s\"", matcher.Description()))
+
+    if done {
       break
     }
   }
@@ -70,4 +82,12 @@ func DoMain(matchers []PwdMatcher) error {
   }
 
   return nil
+}
+
+func LogTime(message string) {
+  if !*printTiming {
+    return
+  }
+  var elapsed = time.Now().Sub(processStart)
+  log.Printf("(%v) %s\n", elapsed, message)
 }
