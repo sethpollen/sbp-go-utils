@@ -8,7 +8,7 @@ import "strings"
 import "time"
 import "unicode/utf8"
 
-// Injectable data for testing MakePrompt.
+// Collects information during construction of a prompt string.
 type PromptEnv struct {
 	Now      time.Time
 	Home     string
@@ -21,7 +21,11 @@ type PromptEnv struct {
   // A short string to place before the final $ in the prompt.
   Flag     string
 	// Maximum number of characters which prompt may occupy horizontally.
-	Width int
+	Width    int
+  // Environment variables which should be emitted to the shell which uses this
+  // prompt. Values will not be escaped, so don't put any weird characters in
+  // here. Values will be quoted.
+  Vars     map[string]string
 }
 
 // Generates a PromptEnv based on current environment variables. The maximum

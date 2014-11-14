@@ -21,6 +21,9 @@ var rPromptFile = flag.String("rprompt_file", "",
   "File to write RPROMPT string to.")
 var titleFile = flag.String("title_file", "",
   "File to write title string to.")
+var varFile = flag.String("var_file", "",
+  "File to write additional environment variables to. This file will be in " +
+  "a format appropriate for sourcing in your shell.")
 
 var printTiming = flag.Bool("print_timing", false,
   "True to log diagnostics about how long each part of the program takes.")
@@ -79,6 +82,19 @@ func DoMain(matchers []PwdMatcher) error {
   if *titleFile != "" {
     var title = MakeTitle(env)
     err := ioutil.WriteFile(*titleFile, []byte(title), 0770)
+    if err != nil {
+      return err
+    }
+  }
+  if *varFile != "" {
+    file, err := os.Create(*varFile)
+    if err != nil {
+      return err
+    }
+    for name, value := range env.Vars {
+      fmt.Fprintf(file, "%s=\"%s\"\n", name, value)
+    }
+    err = file.Close()
     if err != nil {
       return err
     }
