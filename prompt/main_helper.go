@@ -42,6 +42,9 @@ type PwdMatcher interface {
 func DoMain(matchers []PwdMatcher) error {
   flag.Parse()
 
+  LogTime("Begin DoMain")
+  defer LogTime("End DoMain")
+
   // Check flags.
   if *width < 0 {
     return errors.New("--width must be specified")
