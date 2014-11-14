@@ -153,7 +153,7 @@ func MakeRPrompt(env *PromptEnv) *Prompt {
 func MakeTitle(env *PromptEnv) string {
   var info = ""
 	if env.Info != "" {
-		info = fmt.Sprintf("[%s]", info)
+		info = fmt.Sprintf("[%s]", env.Info)
 	}
 	var pwdWidth = env.Width - utf8.RuneCountInString(info)
 	return info + formatPwd(env, pwdWidth)
