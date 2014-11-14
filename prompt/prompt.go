@@ -142,7 +142,7 @@ func MakePrompt(env *PromptEnv, exitCode int) *Prompt {
 func MakeRPrompt(env *PromptEnv) *Prompt {
   var rPrompt = new(Prompt)
   if env.Info2 != "" {
-    rPrompt.Style(Yellow, false)
+    rPrompt.Style(White, false)
     rPrompt.Write(env.Info2)
   }
   return rPrompt
