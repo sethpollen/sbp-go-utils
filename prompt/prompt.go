@@ -20,7 +20,7 @@ type PromptEnv struct {
   // A secondary info string. Displayed using $RPROMPT.
   Info2    string
   // A short string to place before the final $ in the prompt.
-  Flag     string
+  Flag     Prompt
 	// Maximum number of characters which prompt may occupy horizontally.
 	Width    int
   // Environment variables which should be emitted to the shell which uses this
@@ -55,7 +55,6 @@ func MakePromptEnv(width int) *PromptEnv {
 	env.Hostname, _ = os.Hostname()
   env.Info = ""
   env.Info2 = ""
-  env.Flag = ""
 	env.Width = width
   env.Vars = make(map[string]*string)
 
@@ -139,8 +138,10 @@ func MakePrompt(env *PromptEnv, exitCode int) *Prompt {
 		fullPrompt.Write(pwd + " ")
 		fullPrompt.Append(&promptAfterPwd)
 	}
+  fullPrompt.Write("\n")
+  fullPrompt.Append(&env.Flag)
 	fullPrompt.Style(Yellow, true)
-	fullPrompt.Write("\n" + env.Flag + "$ ")
+	fullPrompt.Write("$ ")
 
 	return fullPrompt
 }
