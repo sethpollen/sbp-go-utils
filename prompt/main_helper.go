@@ -1,10 +1,11 @@
 // Helper library for implementers of main functions which use build prompts.
+// Prints to stdout a shell script which should then be sourced to set up the
+// shell.
 package prompt
 
 import "errors"
 import "flag"
 import "fmt"
-import "io/ioutil"
 import "log"
 import "time"
 
@@ -15,9 +16,6 @@ var width = flag.Int("width", -1,
 // Optional flags.
 var exitCode = flag.Int("exitcode", 0,
   "Exit code of previous command. If absent, 0 is assumed.")
-var varFile = flag.String("var_file", "",
-  "File to write output environment variables to. This file will be in " +
-  "a format appropriate for sourcing in your shell.")
 
 var printTiming = flag.Bool("print_timing", false,
   "True to log diagnostics about how long each part of the program takes.")
@@ -49,9 +47,6 @@ func DoMain(matchers []PwdMatcher) error {
   if *width < 0 {
     return errors.New("--width must be specified")
   }
-  if *varFile == "" {
-    return errors.New("--var_file must be specified")
-  }
 
   var env = NewPromptEnv(*width, *exitCode)
   for _, matcher := range matchers {
@@ -68,12 +63,7 @@ func DoMain(matchers []PwdMatcher) error {
   }
 
   // Write results.
-  var varText = env.ToScript()
-  err := ioutil.WriteFile(*varFile, []byte(varText), 0660)
-  if err != nil {
-    return err
-  }
-
+  fmt.Println(env.ToScript())
   return nil
 }
 
