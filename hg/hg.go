@@ -45,7 +45,7 @@ func (self HgMatcher) Match(env *prompt.PromptEnv) bool {
     return false
   }
   env.Info = hgInfo.RepoName
-  env.Flag.Style(prompt.Magenta, false)
+  env.Flag.Style(prompt.Magenta, true)
   env.Flag.Write("hg")
   env.Pwd = hgInfo.RelativePwd
   return true

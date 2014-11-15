@@ -85,7 +85,7 @@ func (self GitMatcher) Match(env *prompt.PromptEnv) bool {
     return false
   }
   env.Info = gitInfo.String()
-  env.Flag.Style(prompt.Red, false)
+  env.Flag.Style(prompt.Red, true)
   env.Flag.Write("git")
   env.Pwd = gitInfo.RelativePwd
   return true
