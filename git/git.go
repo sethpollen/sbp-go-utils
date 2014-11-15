@@ -95,4 +95,4 @@ func (self GitMatcher) Description() string {
   return "git"
 }
 
-func (self GitMatcher) Prepare() {}
+func (self GitMatcher) Prepare(env *prompt.PromptEnv) {}

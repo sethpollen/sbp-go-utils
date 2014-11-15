@@ -55,4 +55,4 @@ func (self HgMatcher) Description() string {
   return "hg"
 }
 
-func (self HgMatcher) Prepare() {}
+func (self HgMatcher) Prepare(env *prompt.PromptEnv) {}
