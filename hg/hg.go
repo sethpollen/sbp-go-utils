@@ -33,7 +33,7 @@ func GetHgInfo(pwd string) (*HgInfo, error) {
 func isHgRepo(pwd string) bool {
   var metaDir = path.Join(pwd, ".hg")
   fileInfo, err := os.Stat(metaDir)
-  return err != nil && fileInfo.IsDir()
+  return err == nil && fileInfo.IsDir()
 }
 
 // A PwdMatcher that matches any directory inside an Hg repo.
