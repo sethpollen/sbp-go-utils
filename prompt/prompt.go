@@ -1,76 +1,68 @@
 // Library for constructing prompt strings of the specific form that I like.
 package prompt
 
-import "bytes"
 import "fmt"
 import "os"
 import "os/user"
 import "strings"
 import "time"
 import "unicode/utf8"
+import "code.google.com/p/sbp-go-utils/shell"
 
 // Collects information during construction of a prompt string.
 type PromptEnv struct {
-	Now      time.Time
-	Home     string
-	Pwd      string
-	Hostname string
+	Now        time.Time
+	Home       string
+	Pwd        string
+	Hostname   string
   // Text to include in the prompt, along with the PWD.
-  Info     string
+  Info       string
   // A secondary info string. Displayed using $RPROMPT.
-  Info2    string
+  Info2      string
   // A short string to place before the final $ in the prompt.
-  Flag     Prompt
+  Flag       Prompt
+  // Exit code of the last process run in the shell.
+  ExitCode   int
 	// Maximum number of characters which prompt may occupy horizontally.
-	Width    int
+	Width      int
   // Environment variables which should be emitted to the shell which uses this
-  // prompt. Values will not be escaped, so don't put any weird characters in
-  // here. Values will be quoted. Entries with nil values will be unset in the
-  // shell.
-  Vars     map[string]*string
-}
-
-func (self *PromptEnv) SetVar(name string, value string) {
-  self.Vars[name] = &value
-}
-
-func (self *PromptEnv) UnsetVar(name string) {
-  self.Vars[name] = nil
+  // prompt.
+  EnvironMod *shell.EnvironMod
 }
 
 // Generates a PromptEnv based on current environment variables. The maximum
 // number of characters which the prompt may occupy must be passed as 'width'.
-func MakePromptEnv(width int) *PromptEnv {
-	var env = new(PromptEnv)
-	env.Now = time.Now()
+func NewPromptEnv(width int, exitCode int) *PromptEnv {
+	var self = new(PromptEnv)
+	self.Now = time.Now()
 
   user, err := user.Current()
   if err != nil {
-    env.Home = ""
+    self.Home = ""
   } else {
-	  env.Home = user.HomeDir
+	  self.Home = user.HomeDir
   }
 
-  env.Pwd, _ = os.Getwd()
-	env.Hostname, _ = os.Hostname()
-  env.Info = ""
-  env.Info2 = ""
-	env.Width = width
-  env.Vars = make(map[string]*string)
+  self.Pwd, _ = os.Getwd()
+	self.Hostname, _ = os.Hostname()
+  self.Info = ""
+  self.Info2 = ""
+  self.ExitCode = exitCode
+	self.Width = width
+  self.EnvironMod = shell.NewEnvironMod()
 
-  return env
+  return self
 }
 
 // Generates a shell prompt string.
-//   exitCode - The result code of the previous shell command.
-func MakePrompt(env *PromptEnv, exitCode int) *Prompt {
+func (self *PromptEnv) makePrompt() *Prompt {
 	// If the hostname is a full domain name, remove all but the first domain
 	// component.
-	var shortHostname = strings.SplitN(env.Hostname, ".", 2)[0]
+	var shortHostname = strings.SplitN(self.Hostname, ".", 2)[0]
 	var runningOverSsh = (os.Getenv("SSH_TTY") != "")
 
 	// Format the date and time.
-	var dateTime = env.Now.Format("01/02 15:04")
+	var dateTime = self.Now.Format("01/02 15:04")
 
 	// Construct the prompt text which must precede the PWD.
 	var promptBeforePwd Prompt
@@ -93,11 +85,11 @@ func MakePrompt(env *PromptEnv, exitCode int) *Prompt {
 	promptBeforePwd.Write(" ")
 
 	// Info (if we got one).
-	if env.Info != "" {
+	if self.Info != "" {
 		promptBeforePwd.Style(White, false)
 		promptBeforePwd.Write("[")
 		promptBeforePwd.Style(White, true)
-		promptBeforePwd.Write(env.Info)
+		promptBeforePwd.Write(self.Info)
 		promptBeforePwd.Style(White, false)
 		promptBeforePwd.Write("] ")
 	}
@@ -106,24 +98,25 @@ func MakePrompt(env *PromptEnv, exitCode int) *Prompt {
 	var promptAfterPwd Prompt
 
 	// Exit code.
-	if exitCode != 0 {
+	if self.ExitCode != 0 {
 		promptAfterPwd.Style(Red, true)
-		promptAfterPwd.Write(fmt.Sprintf("[%d]", exitCode))
+		promptAfterPwd.Write(fmt.Sprintf("[%d]", self.ExitCode))
 	}
 
 	// Determine how much space is left for the PWD.
-	var pwdWidth = env.Width - promptBeforePwd.Len() - promptAfterPwd.Len()
+	var pwdWidth = self.Width - promptBeforePwd.Len() - promptAfterPwd.Len()
 	if pwdWidth < 0 {
 		pwdWidth = 0
 	}
 	var pwdOnItsOwnLine = false
-	if pwdWidth < 20 && utf8.RuneCountInString(env.Pwd) >= 20 && env.Width >= 20 {
+	if pwdWidth < 20 && utf8.RuneCountInString(self.Pwd) >= 20 &&
+     self.Width >= 20 {
 		// Don't cram the PWD into a tiny space; put it on its own line.
-		pwdWidth = env.Width
+		pwdWidth = self.Width
 		pwdOnItsOwnLine = true
 	}
 
-	var pwd = formatPwd(env, pwdWidth)
+	var pwd = self.formatPwd(pwdWidth)
 
 	// Build the complete prompt string.
 	var fullPrompt = new(Prompt)
@@ -139,7 +132,7 @@ func MakePrompt(env *PromptEnv, exitCode int) *Prompt {
 		fullPrompt.Append(&promptAfterPwd)
 	}
   fullPrompt.Write("\n")
-  fullPrompt.Append(&env.Flag)
+  fullPrompt.Append(&self.Flag)
 	fullPrompt.Style(Yellow, true)
 	fullPrompt.Write("$ ")
 
@@ -148,37 +141,37 @@ func MakePrompt(env *PromptEnv, exitCode int) *Prompt {
 
 // Generates a shell RPROMPT string. This will be printed on the right-hand
 // side of the second line of the prompt. It will disappear if the user types
-// a long command, so it should not be super important. env.Info2 will be the
+// a long command, so it should not be super important. self.Info2 will be the
 // content displayed.
 // TODO: unit test
-func MakeRPrompt(env *PromptEnv) *Prompt {
+func (self *PromptEnv) makeRPrompt() *Prompt {
   var rPrompt = new(Prompt)
-  if env.Info2 != "" {
+  if self.Info2 != "" {
     rPrompt.Style(White, false)
-    rPrompt.Write(env.Info2)
+    rPrompt.Write(self.Info2)
   }
   return rPrompt
 }
 
 // Generates a terminal emulator title bar string. Similar to a shell prompt
 // string, but lacks formatting escapes.
-func MakeTitle(env *PromptEnv) string {
+func (self *PromptEnv) makeTitle() string {
   var info = ""
-	if env.Info != "" {
-		info = fmt.Sprintf("[%s]", env.Info)
+	if self.Info != "" {
+		info = fmt.Sprintf("[%s]", self.Info)
 	}
-	var pwdWidth = env.Width - utf8.RuneCountInString(info)
-	return info + formatPwd(env, pwdWidth)
+	var pwdWidth = self.Width - utf8.RuneCountInString(info)
+	return info + self.formatPwd(pwdWidth)
 }
 
 // Formats the PWD for use in a prompt.
-func formatPwd(env *PromptEnv, width int) string {
+func (self *PromptEnv) formatPwd(width int) string {
 	// Perform tilde collapsing on the PWD.
-	var home = env.Home
+	var home = self.Home
 	if strings.HasSuffix(home, "/") {
 		home = home[:len(home)-1]
 	}
-	var pwd = env.Pwd
+	var pwd = self.Pwd
 	if strings.HasPrefix(pwd, home) {
 		pwd = "~" + pwd[len(home):]
 	}
@@ -201,14 +194,18 @@ func formatPwd(env *PromptEnv, width int) string {
 	return pwd
 }
 
-func MakeVarScript(env *PromptEnv) string {
-  var buf = bytes.NewBufferString("")
-  for name, value := range env.Vars {
-    if value == nil {
-      fmt.Fprintf(buf, "unset %s\n", name)
-    } else {
-      fmt.Fprintf(buf, "export %s=\"%s\"\n", name, *value)
-    }
-  }
-  return buf.String()
+// Renders all the information from this PromptEnv into a shell script which
+// may be sourced. The following variables will be set:
+//   PROMPT
+//   RPROMPT
+//   TERM_TITLE
+//   ... plus any other variables set in self.EnvironMod.
+func (self *PromptEnv) ToScript() string {
+  // Start by making a copy of the custom EnvironMod.
+  var mod = *self.EnvironMod
+  // Now add our variables to it.
+  mod.SetVar("PROMPT", self.makePrompt().String())
+  mod.SetVar("RPROMPT", self.makeRPrompt().String())
+  mod.SetVar("TERM_TITLE", self.makeTitle())
+  return mod.ToScript()
 }

@@ -15,14 +15,8 @@ var width = flag.Int("width", -1,
 // Optional flags.
 var exitCode = flag.Int("exitcode", 0,
   "Exit code of previous command. If absent, 0 is assumed.")
-var promptFile = flag.String("prompt_file", "",
-  "File to write prompt string to.")
-var rPromptFile = flag.String("rprompt_file", "",
-  "File to write RPROMPT string to.")
-var titleFile = flag.String("title_file", "",
-  "File to write title string to.")
 var varFile = flag.String("var_file", "",
-  "File to write additional environment variables to. This file will be in " +
+  "File to write output environment variables to. This file will be in " +
   "a format appropriate for sourcing in your shell.")
 
 var printTiming = flag.Bool("print_timing", false,
@@ -55,8 +49,11 @@ func DoMain(matchers []PwdMatcher) error {
   if *width < 0 {
     return errors.New("--width must be specified")
   }
+  if *varFile == "" {
+    return errors.New("--var_file must be specified")
+  }
 
-  var env = MakePromptEnv(*width)
+  var env = NewPromptEnv(*width, *exitCode)
   for _, matcher := range matchers {
     matcher.Prepare(env)
   }
@@ -71,33 +68,10 @@ func DoMain(matchers []PwdMatcher) error {
   }
 
   // Write results.
-  if *promptFile != "" {
-    var prompt = MakePrompt(env, *exitCode).String()
-    err := ioutil.WriteFile(*promptFile, []byte(prompt), 0660)
-    if err != nil {
-      return err
-    }
-  }
-  if *rPromptFile != "" {
-    var rPrompt = MakeRPrompt(env).String()
-    err := ioutil.WriteFile(*rPromptFile, []byte(rPrompt), 0660)
-    if err != nil {
-      return err
-    }
-  }
-  if *titleFile != "" {
-    var title = MakeTitle(env)
-    err := ioutil.WriteFile(*titleFile, []byte(title), 0660)
-    if err != nil {
-      return err
-    }
-  }
-  if *varFile != "" {
-    var varText = MakeVarScript(env)
-    err := ioutil.WriteFile(*varFile, []byte(varText), 0660)
-    if err != nil {
-      return err
-    }
+  var varText = env.ToScript()
+  err := ioutil.WriteFile(*varFile, []byte(varText), 0660)
+  if err != nil {
+    return err
   }
 
   return nil
