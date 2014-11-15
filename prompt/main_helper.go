@@ -32,6 +32,9 @@ var processStart = time.Now()
 
 // Type for a function which may match a PWD and produce an info string.
 type PwdMatcher interface {
+  // Always invoked on every PwdMatcher before trying to match any of them.
+  Prepare(env *PromptEnv)
+
   // If the match succeeds, modifies 'env' in-place and returns true. Otherwise,
   // returns false.
   Match(env *PromptEnv) bool
@@ -54,6 +57,9 @@ func DoMain(matchers []PwdMatcher) error {
   }
 
   var env = MakePromptEnv(*width)
+  for _, matcher := range matchers {
+    matcher.Prepare(env)
+  }
   for _, matcher := range matchers {
     LogTime(fmt.Sprintf("Begin matcher \"%s\"", matcher.Description()))
     var done bool = matcher.Match(env)

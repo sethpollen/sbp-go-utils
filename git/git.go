@@ -94,3 +94,5 @@ func (self GitMatcher) Match(env *prompt.PromptEnv) bool {
 func (self GitMatcher) Description() string {
   return "git"
 }
+
+func (self GitMatcher) Prepare() {}

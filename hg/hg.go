@@ -54,3 +54,5 @@ func (self HgMatcher) Match(env *prompt.PromptEnv) bool {
 func (self HgMatcher) Description() string {
   return "hg"
 }
+
+func (self HgMatcher) Prepare() {}
