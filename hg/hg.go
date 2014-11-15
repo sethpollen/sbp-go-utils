@@ -27,7 +27,7 @@ func GetHgInfo(pwd string) (*HgInfo, error) {
   var info = new(HgInfo)
   info.RepoName = path.Base(repoPath)
   info.RelativePwd = util.RelativePath(pwd, repoPath)
-  return info
+  return info, nil
 }
 
 func isHgRepo(pwd string) bool {
@@ -37,7 +37,7 @@ func isHgRepo(pwd string) bool {
 }
 
 // A PwdMatcher that matches any directory inside an Hg repo.
-type HgMatcher {}
+type HgMatcher struct {}
 
 func (self HgMatcher) Match(env *prompt.PromptEnv) bool {
   hgInfo, err := GetHgInfo(env.Pwd)
@@ -49,4 +49,8 @@ func (self HgMatcher) Match(env *prompt.PromptEnv) bool {
   env.Flag.Write("hg")
   env.Pwd = hgInfo.RelativePwd
   return true
+}
+
+func (self HgMatcher) Description() string {
+  return "hg"
 }
