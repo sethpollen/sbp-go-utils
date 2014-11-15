@@ -1,6 +1,8 @@
 package util
 
+import "errors"
 import "os/exec"
+import "path"
 import "strings"
 
 // Tries to make a version of 'path' which is relative to 'prefix'. If that
@@ -39,3 +41,18 @@ func EvalCommand(outputChan chan<-string, errorChan chan<-error, pwd string,
   }
 }
 
+// Returns the longest prefix of 'p' for which 'test' returns true. Returns
+// an error if no prefix matched.
+func SearchParents(p string, test func(p string) bool) (string, error) {
+  for {
+    if test(p) {
+      return p, nil
+    }
+    var oldP = p
+    p = path.Dir(p)
+    if p == oldP {
+      // No more prefixes.
+      return "", errors.New("No path prefix matched")
+    }
+  }
+}

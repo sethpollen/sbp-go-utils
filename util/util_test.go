@@ -61,3 +61,53 @@ func TestEvalCommand(t *testing.T) {
     case err = <-errChan: // OK.
   }
 }
+
+func TestSearchParentsMatchFull(t *testing.T) {
+  match, err := SearchParents("/a/b/c", func(p string) bool { return true })
+  if err != nil {
+    t.Error("Didn't expect an error")
+  }
+  if match != "/a/b/c" {
+    t.Errorf("Expected \"/a/b/c\", got \"%s\"", match)
+  }
+}
+
+func TestSearchParentsMatchPartial(t *testing.T) {
+  match, err := SearchParents("/a/b/c",
+                              func(p string) bool { return len(p) < 6 })
+  if err != nil {
+    t.Error("Didn't expect an error")
+  }
+  if match != "/a/b" {
+    t.Errorf("Expected \"/a/b\", got \"%s\"", match)
+  }
+}
+
+func TestSearchParentsNoMatch(t *testing.T) {
+  _, err := SearchParents("/a/b/c", func(p string) bool { return false })
+  if err == nil {
+    t.Error("Expected an error")
+  }
+}
+
+func TestSearchParentsMatchDot(t *testing.T) {
+  match, err := SearchParents("./a/b/c",
+                              func(p string) bool { return p == "." })
+  if err != nil {
+    t.Error("Didn't expect an error")
+  }
+  if match != "." {
+    t.Errorf("Expected \".\", got \"%s\"", match)
+  }
+}
+
+func TestSearchParentsMatchLoneSlash(t *testing.T) {
+  match, err := SearchParents("/a/b/c",
+                              func(p string) bool { return p == "/" })
+  if err != nil {
+    t.Error("Didn't expect an error")
+  }
+  if match != "/" {
+    t.Errorf("Expected \"/\", got \"%s\"", match)
+  }
+}
