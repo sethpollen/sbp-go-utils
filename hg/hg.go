@@ -36,10 +36,12 @@ func isHgRepo(pwd string) bool {
   return err == nil && fileInfo.IsDir()
 }
 
-// A PwdMatcher that matches any directory inside an Hg repo.
-type HgMatcher struct {}
+// A prompt.Module that matches any directory inside an Hg repo.
+type module struct {}
 
-func (self HgMatcher) Match(env *prompt.PromptEnv) bool {
+func (self module) Prepare(env *prompt.PromptEnv) {}
+
+func (self module) Match(env *prompt.PromptEnv) bool {
   hgInfo, err := GetHgInfo(env.Pwd)
   if err != nil {
     return false
@@ -51,8 +53,10 @@ func (self HgMatcher) Match(env *prompt.PromptEnv) bool {
   return true
 }
 
-func (self HgMatcher) Description() string {
+func (self module) Description() string {
   return "hg"
 }
 
-func (self HgMatcher) Prepare(env *prompt.PromptEnv) {}
+func Module() module {
+  return module{}
+}

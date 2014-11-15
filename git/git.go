@@ -76,10 +76,12 @@ func (info *GitInfo) String() string {
 	return str
 }
 
-// A PwdMatcher that matches any directory inside a Git repo.
-type GitMatcher struct {}
+// A prompt.Modlue that matches any directory inside a Git repo.
+type module struct {}
 
-func (self GitMatcher) Match(env *prompt.PromptEnv) bool {
+func (self module) Prepare(env *prompt.PromptEnv) {}
+
+func (self module) Match(env *prompt.PromptEnv) bool {
   gitInfo, err := GetGitInfo(env.Pwd)
   if err != nil {
     return false
@@ -91,8 +93,10 @@ func (self GitMatcher) Match(env *prompt.PromptEnv) bool {
   return true
 }
 
-func (self GitMatcher) Description() string {
+func (self module) Description() string {
   return "git"
 }
 
-func (self GitMatcher) Prepare(env *prompt.PromptEnv) {}
+func Module() module {
+  return module{}
+}

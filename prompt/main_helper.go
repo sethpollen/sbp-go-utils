@@ -16,28 +16,28 @@ var width = flag.Int("width", -1,
 // Optional flags.
 var exitCode = flag.Int("exitcode", 0,
   "Exit code of previous command. If absent, 0 is assumed.")
-
 var printTiming = flag.Bool("print_timing", false,
   "True to log diagnostics about how long each part of the program takes.")
 
 var processStart = time.Now()
 
-// Type for a function which may match a PWD and produce an info string.
-type PwdMatcher interface {
-  // Always invoked on every PwdMatcher before trying to match any of them.
+// An invoker of this helper must assemble a list of "modules" to be executed
+// for each command prompt.
+type Module interface {
+  // Always invoked on every Module before trying to match any of them.
   Prepare(env *PromptEnv)
 
   // If the match succeeds, modifies 'env' in-place and returns true. Otherwise,
   // returns false.
   Match(env *PromptEnv) bool
 
-  // Returns a short string describing this PwdMatcher.
+  // Returns a short string describing this Module.
   Description() string
 }
 
-// Entry point. Executes 'matchers' against the current PWD, stopping once one
+// Entry point. Executes 'modules' against the current PWD, stopping once one
 // of them returns true.
-func DoMain(matchers []PwdMatcher) error {
+func DoMain(modules []Module) error {
   flag.Parse()
 
   LogTime("Begin DoMain")
@@ -49,13 +49,13 @@ func DoMain(matchers []PwdMatcher) error {
   }
 
   var env = NewPromptEnv(*width, *exitCode)
-  for _, matcher := range matchers {
-    matcher.Prepare(env)
+  for _, module := range modules {
+    module.Prepare(env)
   }
-  for _, matcher := range matchers {
-    LogTime(fmt.Sprintf("Begin matcher \"%s\"", matcher.Description()))
-    var done bool = matcher.Match(env)
-    LogTime(fmt.Sprintf("End matcher \"%s\"", matcher.Description()))
+  for _, module := range modules {
+    LogTime(fmt.Sprintf("Begin matching module \"%s\"", module.Description()))
+    var done bool = module.Match(env)
+    LogTime(fmt.Sprintf("End matching module \"%s\"", module.Description()))
 
     if done {
       break
