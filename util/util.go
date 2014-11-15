@@ -41,18 +41,27 @@ func EvalCommand(outputChan chan<-string, errorChan chan<-error, pwd string,
   }
 }
 
-// Returns the longest prefix of 'p' for which 'test' returns true. Returns
+// Returns the shortest prefix of 'p' for which 'test' returns true. Returns
 // an error if no prefix matched.
 func SearchParents(p string, test func(p string) bool) (string, error) {
+  // Build a list of prefixes, beginning with the longest.
+  var prefixes []string
   for {
-    if test(p) {
-      return p, nil
-    }
+    prefixes = append(prefixes, p)
     var oldP = p
     p = path.Dir(p)
     if p == oldP {
-      // No more prefixes.
-      return "", errors.New("No path prefix matched")
+      break
     }
   }
+
+  // Search through the list backwards to find the shortest matching prefix.
+  for i := len(prefixes) - 1; i >= 0; i-- {
+    var prefix = prefixes[i]
+    if test(prefix) {
+      return prefix, nil
+    }
+  }
+
+  return "", errors.New("No prefix matched")
 }

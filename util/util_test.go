@@ -67,14 +67,14 @@ func TestSearchParentsMatchFull(t *testing.T) {
   if err != nil {
     t.Error("Didn't expect an error")
   }
-  if match != "/a/b/c" {
-    t.Errorf("Expected \"/a/b/c\", got \"%s\"", match)
+  if match != "/" {
+    t.Errorf("Expected \"/\", got \"%s\"", match)
   }
 }
 
 func TestSearchParentsMatchPartial(t *testing.T) {
   match, err := SearchParents("/a/b/c",
-                              func(p string) bool { return len(p) < 6 })
+                              func(p string) bool { return len(p) >= 4 })
   if err != nil {
     t.Error("Didn't expect an error")
   }
