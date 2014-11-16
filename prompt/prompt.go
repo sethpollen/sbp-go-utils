@@ -102,7 +102,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	// Exit code.
 	if self.ExitCode != 0 {
 		promptAfterPwd.Style(Red, true)
-		promptAfterPwd.Write(fmt.Sprintf("[%d]", self.ExitCode))
+		promptAfterPwd.Write(fmt.Sprintf(" [%d]", self.ExitCode))
 	}
 
 	// Determine how much space is left for the PWD.
@@ -130,7 +130,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 		fullPrompt.Write(pwd)
 	} else {
 		fullPrompt.Style(Cyan, true)
-		fullPrompt.Write(pwd + " ")
+		fullPrompt.Write(pwd)
 		fullPrompt.Append(promptAfterPwd)
 	}
   fullPrompt.Write("\n")
