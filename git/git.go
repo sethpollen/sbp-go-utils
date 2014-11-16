@@ -1,7 +1,9 @@
 // Library for querying info from a local Git repository.
 package git
 
+import "bufio"
 import "path"
+import "regexp"
 import "strings"
 import "code.google.com/p/sbp-go-utils/prompt"
 import "code.google.com/p/sbp-go-utils/util"
@@ -14,8 +16,10 @@ type GitInfo struct {
 	// The name of the current branch, or a short hash if we are in a detached
 	// head.
 	Branch string
-	// True if there are uncommitted local changes.
+	// True iff there are uncommitted local changes.
 	Dirty bool
+  // True iff there are unpushed local commits.
+  Ahead bool
 }
 
 // Synchronous wrapper around util.EvalCommand.
@@ -28,6 +32,11 @@ func evalCommand(pwd string, name string, args ...string) (string, error) {
     case output := <-outputChan: return output, nil
   }
 }
+
+// Regex to match the "branch" line from git status --branch --porcelain. If
+// this matches, the local branch is ahead of the remote branch.
+var statusBranchAheadRegex =
+  regexp.MustCompile("^\\#\\# .* \\[ahead [0-9]+\\]$")
 
 // Queries a GitInfo for the repository that parents 'pwd'. If 'pwd' is not in
 // a Git repository, returns an error.
@@ -51,7 +60,7 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 	}
 
   // TODO: try passing --branch to compute whether we have unpushed changes.
-	status, err := evalCommand(pwd, "git", "status", "--porcelain")
+	status, err := evalCommand(pwd, "git", "status", "--branch", "--porcelain")
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +69,26 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 	info.RepoName = path.Base(repoPath)
   info.RelativePwd = util.RelativePath(pwd, repoPath)
 	info.Branch = branch
-	info.Dirty = (status != "")
+
+  info.Dirty = false
+  info.Ahead = false
+
+  // Parse the git status result.
+  var scanner = bufio.NewScanner(strings.NewReader(status))
+  for scanner.Scan() {
+    var line = scanner.Text()
+    if strings.HasPrefix(line, "## ") {
+      // This is the "branch" line.
+      if statusBranchAheadRegex.FindStringIndex(line) != nil {
+        info.Ahead = true
+      }
+    } else {
+      // This is not the "branch" line, so it must indicate that a file is
+      // dirty.
+      info.Dirty = true
+    }
+  }
+
 	return info, nil
 }
 
@@ -71,8 +99,14 @@ func (info *GitInfo) String() string {
 	if info.RepoName != info.Branch {
 		str += ": " + info.Branch
 	}
-	if info.Dirty {
-		str += " *"
+	if info.Ahead || info.Dirty {
+		str += " "
+    if info.Ahead {
+      str += "^"
+    }
+    if info.Dirty {
+      str += "*"
+    }
 	}
 	return str
 }
