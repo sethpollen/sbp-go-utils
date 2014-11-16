@@ -13,50 +13,50 @@ import "code.google.com/p/sbp-go-utils/util"
 
 // Encapsulates information about an Hg repo.
 type HgInfo struct {
-  // Name of this Hg repo.
-  RepoName string
-  // Pwd, relative to the root repo path.
-  RelativePwd string
+	// Name of this Hg repo.
+	RepoName string
+	// Pwd, relative to the root repo path.
+	RelativePwd string
 }
 
 func GetHgInfo(pwd string) (*HgInfo, error) {
-  repoPath, err := util.SearchParents(pwd, isHgRepo)
-  if err != nil {
-    return nil, errors.New("Not in an Hg repo")
-  }
-  var info = new(HgInfo)
-  info.RepoName = path.Base(repoPath)
-  info.RelativePwd = util.RelativePath(pwd, repoPath)
-  return info, nil
+	repoPath, err := util.SearchParents(pwd, isHgRepo)
+	if err != nil {
+		return nil, errors.New("Not in an Hg repo")
+	}
+	var info = new(HgInfo)
+	info.RepoName = path.Base(repoPath)
+	info.RelativePwd = util.RelativePath(pwd, repoPath)
+	return info, nil
 }
 
 func isHgRepo(pwd string) bool {
-  var metaDir = path.Join(pwd, ".hg")
-  fileInfo, err := os.Stat(metaDir)
-  return err == nil && fileInfo.IsDir()
+	var metaDir = path.Join(pwd, ".hg")
+	fileInfo, err := os.Stat(metaDir)
+	return err == nil && fileInfo.IsDir()
 }
 
 // A prompt.Module that matches any directory inside an Hg repo.
-type module struct {}
+type module struct{}
 
 func (self module) Prepare(env *prompt.PromptEnv) {}
 
 func (self module) Match(env *prompt.PromptEnv) bool {
-  hgInfo, err := GetHgInfo(env.Pwd)
-  if err != nil {
-    return false
-  }
-  env.Info = hgInfo.RepoName
-  env.Flag.Style(prompt.Magenta, true)
-  env.Flag.Write("hg")
-  env.Pwd = hgInfo.RelativePwd
-  return true
+	hgInfo, err := GetHgInfo(env.Pwd)
+	if err != nil {
+		return false
+	}
+	env.Info = hgInfo.RepoName
+	env.Flag.Style(prompt.Magenta, true)
+	env.Flag.Write("hg")
+	env.Pwd = hgInfo.RelativePwd
+	return true
 }
 
 func (self module) Description() string {
-  return "hg"
+	return "hg"
 }
 
 func Module() module {
-  return module{}
+	return module{}
 }

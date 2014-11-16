@@ -44,7 +44,7 @@ func TestFormatting(t *testing.T) {
 
 func TestAppend(t *testing.T) {
 	var p = NewPrompt()
-  var q = NewPrompt()
+	var q = NewPrompt()
 	p.Style(Yellow, true)
 	p.Write("This is p.")
 	q.Write("This ")

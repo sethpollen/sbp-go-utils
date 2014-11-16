@@ -11,23 +11,23 @@ import "code.google.com/p/sbp-go-utils/shell"
 
 // Collects information during construction of a prompt string.
 type PromptEnv struct {
-	Now        time.Time
-	Home       string
-	Pwd        string
-	Hostname   string
-  // Text to include in the prompt, along with the PWD.
-  Info       string
-  // A secondary info string. Displayed using $RPROMPT.
-  Info2      string
-  // A short string to place before the final $ in the prompt.
-  Flag       Prompt
-  // Exit code of the last process run in the shell.
-  ExitCode   int
+	Now      time.Time
+	Home     string
+	Pwd      string
+	Hostname string
+	// Text to include in the prompt, along with the PWD.
+	Info string
+	// A secondary info string. Displayed using $RPROMPT.
+	Info2 string
+	// A short string to place before the final $ in the prompt.
+	Flag Prompt
+	// Exit code of the last process run in the shell.
+	ExitCode int
 	// Maximum number of characters which prompt may occupy horizontally.
-	Width      int
-  // Environment variables which should be emitted to the shell which uses this
-  // prompt.
-  EnvironMod shell.EnvironMod
+	Width int
+	// Environment variables which should be emitted to the shell which uses this
+	// prompt.
+	EnvironMod shell.EnvironMod
 }
 
 // Generates a PromptEnv based on current environment variables. The maximum
@@ -36,23 +36,23 @@ func NewPromptEnv(width int, exitCode int) *PromptEnv {
 	var self = new(PromptEnv)
 	self.Now = time.Now()
 
-  user, err := user.Current()
-  if err != nil {
-    self.Home = ""
-  } else {
-	  self.Home = user.HomeDir
-  }
+	user, err := user.Current()
+	if err != nil {
+		self.Home = ""
+	} else {
+		self.Home = user.HomeDir
+	}
 
-  self.Pwd, _ = os.Getwd()
+	self.Pwd, _ = os.Getwd()
 	self.Hostname, _ = os.Hostname()
-  self.Info = ""
-  self.Info2 = ""
-  self.ExitCode = exitCode
+	self.Info = ""
+	self.Info2 = ""
+	self.ExitCode = exitCode
 	self.Width = width
-  self.Flag = *NewPrompt()
-  self.EnvironMod = *shell.NewEnvironMod()
+	self.Flag = *NewPrompt()
+	self.EnvironMod = *shell.NewEnvironMod()
 
-  return self
+	return self
 }
 
 // Generates a shell prompt string.
@@ -111,7 +111,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	}
 	var pwdOnItsOwnLine = false
 	if pwdWidth < 20 && utf8.RuneCountInString(self.Pwd) >= 20 &&
-     self.Width >= 20 {
+		self.Width >= 20 {
 		// Don't cram the PWD into a tiny space; put it on its own line.
 		pwdWidth = self.Width
 		pwdOnItsOwnLine = true
@@ -132,8 +132,8 @@ func (self *PromptEnv) makePrompt() *Prompt {
 		fullPrompt.Write(pwd)
 		fullPrompt.Append(promptAfterPwd)
 	}
-  fullPrompt.Write("\n")
-  fullPrompt.Append(&self.Flag)
+	fullPrompt.Write("\n")
+	fullPrompt.Append(&self.Flag)
 	fullPrompt.Style(Yellow, true)
 	fullPrompt.Write("$ ")
 
@@ -146,18 +146,18 @@ func (self *PromptEnv) makePrompt() *Prompt {
 // content displayed.
 // TODO: unit test
 func (self *PromptEnv) makeRPrompt() *Prompt {
-  var rPrompt = NewPrompt()
-  if self.Info2 != "" {
-    rPrompt.Style(White, false)
-    rPrompt.Write(self.Info2)
-  }
-  return rPrompt
+	var rPrompt = NewPrompt()
+	if self.Info2 != "" {
+		rPrompt.Style(White, false)
+		rPrompt.Write(self.Info2)
+	}
+	return rPrompt
 }
 
 // Generates a terminal emulator title bar string. Similar to a shell prompt
 // string, but lacks formatting escapes.
 func (self *PromptEnv) makeTitle() string {
-  var info = ""
+	var info = ""
 	if self.Info != "" {
 		info = fmt.Sprintf("[%s]", self.Info)
 	}
@@ -202,11 +202,11 @@ func (self *PromptEnv) formatPwd(width int) string {
 //   TERM_TITLE
 //   ... plus any other variables set in self.EnvironMod.
 func (self *PromptEnv) ToScript() string {
-  // Start by making a copy of the custom EnvironMod.
-  var mod = self.EnvironMod
-  // Now add our variables to it.
-  mod.SetVar("PROMPT", self.makePrompt().String())
-  mod.SetVar("RPROMPT", self.makeRPrompt().String())
-  mod.SetVar("TERM_TITLE", self.makeTitle())
-  return mod.ToScript()
+	// Start by making a copy of the custom EnvironMod.
+	var mod = self.EnvironMod
+	// Now add our variables to it.
+	mod.SetVar("PROMPT", self.makePrompt().String())
+	mod.SetVar("RPROMPT", self.makeRPrompt().String())
+	mod.SetVar("TERM_TITLE", self.makeTitle())
+	return mod.ToScript()
 }

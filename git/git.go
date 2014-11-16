@@ -11,32 +11,33 @@ import "code.google.com/p/sbp-go-utils/util"
 type GitInfo struct {
 	// Name of this Git repo.
 	RepoName string
-  // Pwd, relative to the root repo path.
-  RelativePwd string
+	// Pwd, relative to the root repo path.
+	RelativePwd string
 	// The name of the current branch, or a short hash if we are in a detached
 	// head.
 	Branch string
 	// True iff there are uncommitted local changes.
 	Dirty bool
-  // True iff there are unpushed local commits.
-  Ahead bool
+	// True iff there are unpushed local commits.
+	Ahead bool
 }
 
 // Synchronous wrapper around util.EvalCommand.
 func evalCommand(pwd string, name string, args ...string) (string, error) {
-  var outputChan = make(chan string)
-  var errorChan = make(chan error)
-  go util.EvalCommand(outputChan, errorChan, pwd, name, args...)
-  select {
-    case err := <-errorChan: return "", err
-    case output := <-outputChan: return output, nil
-  }
+	var outputChan = make(chan string)
+	var errorChan = make(chan error)
+	go util.EvalCommand(outputChan, errorChan, pwd, name, args...)
+	select {
+	case err := <-errorChan:
+		return "", err
+	case output := <-outputChan:
+		return output, nil
+	}
 }
 
 // Regex to match the "branch" line from git status --branch --porcelain. If
 // this matches, the local branch is ahead of the remote branch.
-var statusBranchAheadRegex =
-  regexp.MustCompile("^\\#\\# .* \\[ahead [0-9]+\\]$")
+var statusBranchAheadRegex = regexp.MustCompile("^\\#\\# .* \\[ahead [0-9]+\\]$")
 
 // Queries a GitInfo for the repository that parents 'pwd'. If 'pwd' is not in
 // a Git repository, returns an error.
@@ -59,7 +60,7 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 		}
 	}
 
-  // TODO: try passing --branch to compute whether we have unpushed changes.
+	// TODO: try passing --branch to compute whether we have unpushed changes.
 	status, err := evalCommand(pwd, "git", "status", "--branch", "--porcelain")
 	if err != nil {
 		return nil, err
@@ -67,27 +68,27 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 
 	var info = new(GitInfo)
 	info.RepoName = path.Base(repoPath)
-  info.RelativePwd = util.RelativePath(pwd, repoPath)
+	info.RelativePwd = util.RelativePath(pwd, repoPath)
 	info.Branch = branch
 
-  info.Dirty = false
-  info.Ahead = false
+	info.Dirty = false
+	info.Ahead = false
 
-  // Parse the git status result.
-  var scanner = bufio.NewScanner(strings.NewReader(status))
-  for scanner.Scan() {
-    var line = scanner.Text()
-    if strings.HasPrefix(line, "## ") {
-      // This is the "branch" line.
-      if statusBranchAheadRegex.FindStringIndex(line) != nil {
-        info.Ahead = true
-      }
-    } else {
-      // This is not the "branch" line, so it must indicate that a file is
-      // dirty.
-      info.Dirty = true
-    }
-  }
+	// Parse the git status result.
+	var scanner = bufio.NewScanner(strings.NewReader(status))
+	for scanner.Scan() {
+		var line = scanner.Text()
+		if strings.HasPrefix(line, "## ") {
+			// This is the "branch" line.
+			if statusBranchAheadRegex.FindStringIndex(line) != nil {
+				info.Ahead = true
+			}
+		} else {
+			// This is not the "branch" line, so it must indicate that a file is
+			// dirty.
+			info.Dirty = true
+		}
+	}
 
 	return info, nil
 }
@@ -101,37 +102,37 @@ func (info *GitInfo) String() string {
 	}
 	if info.Ahead || info.Dirty {
 		str += " "
-    if info.Ahead {
-      str += "^"
-    }
-    if info.Dirty {
-      str += "*"
-    }
+		if info.Ahead {
+			str += "^"
+		}
+		if info.Dirty {
+			str += "*"
+		}
 	}
 	return str
 }
 
 // A prompt.Modlue that matches any directory inside a Git repo.
-type module struct {}
+type module struct{}
 
 func (self module) Prepare(env *prompt.PromptEnv) {}
 
 func (self module) Match(env *prompt.PromptEnv) bool {
-  gitInfo, err := GetGitInfo(env.Pwd)
-  if err != nil {
-    return false
-  }
-  env.Info = gitInfo.String()
-  env.Flag.Style(prompt.Red, true)
-  env.Flag.Write("git")
-  env.Pwd = gitInfo.RelativePwd
-  return true
+	gitInfo, err := GetGitInfo(env.Pwd)
+	if err != nil {
+		return false
+	}
+	env.Info = gitInfo.String()
+	env.Flag.Style(prompt.Red, true)
+	env.Flag.Write("git")
+	env.Pwd = gitInfo.RelativePwd
+	return true
 }
 
 func (self module) Description() string {
-  return "git"
+	return "git"
 }
 
 func Module() module {
-  return module{}
+	return module{}
 }

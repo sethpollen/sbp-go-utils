@@ -31,9 +31,9 @@ const (
 )
 
 func NewPrompt() *Prompt {
-  var p = new(Prompt)
-  p.ClearStyle()
-  return p
+	var p = new(Prompt)
+	p.ClearStyle()
+	return p
 }
 
 func (prompt *Prompt) Len() int {
@@ -47,28 +47,28 @@ func (prompt *Prompt) Write(text string) {
 
 // Appends a new style, starting at the end of the current text.
 func (self *Prompt) appendMarker(escapeCode string, pos int) {
-  var newMarker = StyleMarker{escapeCode, pos}
-  var lastMarker = self.lastMarker()
-  if lastMarker != nil && lastMarker.pos == pos {
-    // Replace lastMarker with newMarker.
-    self.styleMarkers[len(self.styleMarkers) - 1] = newMarker
-  } else if lastMarker != nil && lastMarker.escapeCode == escapeCode {
-    // The new marker is the same as the existing style, so don't add anything.
-  } else {
-    // Append newMarker to the list.
-	  self.styleMarkers = append(self.styleMarkers, newMarker)
-  }
+	var newMarker = StyleMarker{escapeCode, pos}
+	var lastMarker = self.lastMarker()
+	if lastMarker != nil && lastMarker.pos == pos {
+		// Replace lastMarker with newMarker.
+		self.styleMarkers[len(self.styleMarkers)-1] = newMarker
+	} else if lastMarker != nil && lastMarker.escapeCode == escapeCode {
+		// The new marker is the same as the existing style, so don't add anything.
+	} else {
+		// Append newMarker to the list.
+		self.styleMarkers = append(self.styleMarkers, newMarker)
+	}
 }
 
 // Gets the last StyleMarker in this Prompt, or nil if there are no StyleMarkers
 // in this Prompt.
 func (self *Prompt) lastMarker() *StyleMarker {
-  var lastMarkerIndex = len(self.styleMarkers) - 1
-  if lastMarkerIndex >= 0 {
-    return &self.styleMarkers[lastMarkerIndex]
-  } else {
-    return nil
-  }
+	var lastMarkerIndex = len(self.styleMarkers) - 1
+	if lastMarkerIndex >= 0 {
+		return &self.styleMarkers[lastMarkerIndex]
+	} else {
+		return nil
+	}
 }
 
 // Applies a new style at the end of this prompt, using the given foreground
@@ -81,7 +81,7 @@ func (prompt *Prompt) Style(color int, bold bool) {
 		boldness = 0
 	}
 	var escape = fmt.Sprintf("\033[%d;%dm", boldness, color+30)
-  prompt.appendMarker(escape, len(prompt.text))
+	prompt.appendMarker(escape, len(prompt.text))
 }
 
 // Resets the style at the end of this Prompt to have no special styling.
@@ -94,7 +94,7 @@ func (prompt *Prompt) Append(other *Prompt) {
 	offset := len(prompt.text)
 	prompt.text += other.text
 	for _, marker := range other.styleMarkers {
-		prompt.appendMarker(marker.escapeCode, marker.pos + offset)
+		prompt.appendMarker(marker.escapeCode, marker.pos+offset)
 	}
 }
 
