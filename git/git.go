@@ -50,6 +50,7 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 		}
 	}
 
+  // TODO: try passing --branch to compute whether we have unpushed changes.
 	status, err := evalCommand(pwd, "git", "status", "--porcelain")
 	if err != nil {
 		return nil, err
