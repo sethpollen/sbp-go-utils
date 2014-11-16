@@ -45,15 +45,29 @@ func (prompt *Prompt) Write(text string) {
 	prompt.text += text
 }
 
+// Appends a new style, starting at the end of the current text.
 func (self *Prompt) appendMarker(escapeCode string, pos int) {
   var newMarker = StyleMarker{escapeCode, pos}
-  var lastMarkerIndex = len(self.styleMarkers) - 1
-  if lastMarkerIndex >= 0 && self.styleMarkers[lastMarkerIndex].pos == pos {
+  var lastMarker = self.lastMarker()
+  if lastMarker != nil && lastMarker.pos == pos {
     // Replace lastMarker with newMarker.
-    self.styleMarkers[lastMarkerIndex] = newMarker
+    self.styleMarkers[len(self.styleMarkers) - 1] = newMarker
+  } else if lastMarker != nil && lastMarker.escapeCode == escapeCode {
+    // The new marker is the same as the existing style, so don't add anything.
   } else {
     // Append newMarker to the list.
 	  self.styleMarkers = append(self.styleMarkers, newMarker)
+  }
+}
+
+// Gets the last StyleMarker in this Prompt, or nil if there are no StyleMarkers
+// in this Prompt.
+func (self *Prompt) lastMarker() *StyleMarker {
+  var lastMarkerIndex = len(self.styleMarkers) - 1
+  if lastMarkerIndex >= 0 {
+    return &self.styleMarkers[lastMarkerIndex]
+  } else {
+    return nil
   }
 }
 
