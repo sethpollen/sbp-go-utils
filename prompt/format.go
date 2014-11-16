@@ -30,6 +30,12 @@ const (
 	White
 )
 
+func NewPrompt() *Prompt {
+  var p = new(Prompt)
+  p.ClearStyle()
+  return p
+}
+
 func (prompt *Prompt) Len() int {
 	return utf8.RuneCountInString(prompt.text)
 }
@@ -37,6 +43,18 @@ func (prompt *Prompt) Len() int {
 // Appends some text to this Prompt.
 func (prompt *Prompt) Write(text string) {
 	prompt.text += text
+}
+
+func (self *Prompt) appendMarker(escapeCode string, pos int) {
+  var newMarker = StyleMarker{escapeCode, pos}
+  var lastMarkerIndex = len(self.styleMarkers) - 1
+  if lastMarkerIndex >= 0 && self.styleMarkers[lastMarkerIndex].pos == pos {
+    // Replace lastMarker with newMarker.
+    self.styleMarkers[lastMarkerIndex] = newMarker
+  } else {
+    // Append newMarker to the list.
+	  self.styleMarkers = append(self.styleMarkers, newMarker)
+  }
 }
 
 // Applies a new style at the end of this prompt, using the given foreground
@@ -48,15 +66,13 @@ func (prompt *Prompt) Style(color int, bold bool) {
 	} else {
 		boldness = 0
 	}
-	escape := fmt.Sprintf("\033[%d;%dm", boldness, color+30)
-	prompt.styleMarkers =
-		append(prompt.styleMarkers, StyleMarker{escape, len(prompt.text)})
+	var escape = fmt.Sprintf("\033[%d;%dm", boldness, color+30)
+  prompt.appendMarker(escape, len(prompt.text))
 }
 
 // Resets the style at the end of this Prompt to have no special styling.
 func (prompt *Prompt) ClearStyle() {
-	prompt.styleMarkers =
-		append(prompt.styleMarkers, StyleMarker{"\033[0m", len(prompt.text)})
+	prompt.appendMarker("\033[0m", len(prompt.text))
 }
 
 // Concatenates 'other' onto this Prompt.
@@ -64,15 +80,13 @@ func (prompt *Prompt) Append(other *Prompt) {
 	offset := len(prompt.text)
 	prompt.text += other.text
 	for _, marker := range other.styleMarkers {
-		prompt.styleMarkers = append(prompt.styleMarkers,
-			StyleMarker{marker.escapeCode,
-				marker.pos + offset})
+		prompt.appendMarker(marker.escapeCode, marker.pos + offset)
 	}
 }
 
 // Serializes this Prompt to a string with embedded ANSI escape sequences.
 func (prompt *Prompt) String() string {
-	buffer := "%{\033[0m%}" // Start with a clean format.
+	buffer := ""
 	nextPos := 0
 
 	for _, marker := range prompt.styleMarkers {

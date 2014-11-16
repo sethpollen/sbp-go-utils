@@ -1,4 +1,5 @@
 // Library for constructing prompt strings of the specific form that I like.
+// TODO: unit tests are failing
 package prompt
 
 import "fmt"
@@ -27,7 +28,7 @@ type PromptEnv struct {
 	Width      int
   // Environment variables which should be emitted to the shell which uses this
   // prompt.
-  EnvironMod *shell.EnvironMod
+  EnvironMod shell.EnvironMod
 }
 
 // Generates a PromptEnv based on current environment variables. The maximum
@@ -49,7 +50,8 @@ func NewPromptEnv(width int, exitCode int) *PromptEnv {
   self.Info2 = ""
   self.ExitCode = exitCode
 	self.Width = width
-  self.EnvironMod = shell.NewEnvironMod()
+  self.Flag = *NewPrompt()
+  self.EnvironMod = *shell.NewEnvironMod()
 
   return self
 }
@@ -65,7 +67,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	var dateTime = self.Now.Format("01/02 15:04")
 
 	// Construct the prompt text which must precede the PWD.
-	var promptBeforePwd Prompt
+	var promptBeforePwd = NewPrompt()
 
 	// Date and time.
 	promptBeforePwd.Style(Cyan, true)
@@ -95,7 +97,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	}
 
 	// Construct the prompt text which must follow the PWD.
-	var promptAfterPwd Prompt
+	var promptAfterPwd = NewPrompt()
 
 	// Exit code.
 	if self.ExitCode != 0 {
@@ -119,17 +121,17 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	var pwd = self.formatPwd(pwdWidth)
 
 	// Build the complete prompt string.
-	var fullPrompt = new(Prompt)
-	fullPrompt.Append(&promptBeforePwd)
+	var fullPrompt = NewPrompt()
+	fullPrompt.Append(promptBeforePwd)
 	if pwdOnItsOwnLine {
-		fullPrompt.Append(&promptAfterPwd)
+		fullPrompt.Append(promptAfterPwd)
 		fullPrompt.Write("\n")
 		fullPrompt.Style(Cyan, true)
 		fullPrompt.Write(pwd)
 	} else {
 		fullPrompt.Style(Cyan, true)
 		fullPrompt.Write(pwd + " ")
-		fullPrompt.Append(&promptAfterPwd)
+		fullPrompt.Append(promptAfterPwd)
 	}
   fullPrompt.Write("\n")
   fullPrompt.Append(&self.Flag)
@@ -145,7 +147,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 // content displayed.
 // TODO: unit test
 func (self *PromptEnv) makeRPrompt() *Prompt {
-  var rPrompt = new(Prompt)
+  var rPrompt = NewPrompt()
   if self.Info2 != "" {
     rPrompt.Style(White, false)
     rPrompt.Write(self.Info2)
@@ -202,7 +204,7 @@ func (self *PromptEnv) formatPwd(width int) string {
 //   ... plus any other variables set in self.EnvironMod.
 func (self *PromptEnv) ToScript() string {
   // Start by making a copy of the custom EnvironMod.
-  var mod = *self.EnvironMod
+  var mod = self.EnvironMod
   // Now add our variables to it.
   mod.SetVar("PROMPT", self.makePrompt().String())
   mod.SetVar("RPROMPT", self.makeRPrompt().String())

@@ -4,7 +4,7 @@ import "strconv"
 import "testing"
 
 func TestEmptyPrompt(t *testing.T) {
-	var p Prompt
+	var p = NewPrompt()
 	if p.String() != "%{\033[0m%}%{\033[0m%}" {
 		t.Error("String ==", strconv.Quote(p.String()))
 	}
@@ -14,7 +14,7 @@ func TestEmptyPrompt(t *testing.T) {
 }
 
 func TestNoFormatting(t *testing.T) {
-	var p Prompt
+	var p = NewPrompt()
 	p.Write("ABC")
 	if p.String() != "%{\033[0m%}ABC%{\033[0m%}" {
 		t.Error("String ==", strconv.Quote(p.String()))
@@ -25,7 +25,7 @@ func TestNoFormatting(t *testing.T) {
 }
 
 func TestFormatting(t *testing.T) {
-	var p Prompt
+	var p = NewPrompt()
 	p.Write("A")
 	p.Style(Yellow, true)
 	p.Write("B")
@@ -43,15 +43,16 @@ func TestFormatting(t *testing.T) {
 }
 
 func TestAppend(t *testing.T) {
-	var p, q Prompt
+	var p = NewPrompt()
+  var q = NewPrompt()
 	p.Style(Yellow, true)
 	p.Write("This is p.")
 	q.Write("This ")
 	q.Style(White, true)
 	q.Write("is q.")
-	p.Append(&q)
+	p.Append(q)
 	if p.String() !=
-		"%{\033[0m%}%{\033[1;33m%}This is p.This %{\033[1;37m%}is q.%{\033[0m%}" {
+		"%{\033[1;33m%}This is p.%{\033[0m%}This %{\033[1;37m%}is q.%{\033[0m%}" {
 		t.Error("String ==", strconv.Quote(p.String()))
 	}
 	if p.Len() != 20 {
