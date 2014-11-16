@@ -1,5 +1,4 @@
 // Library for constructing prompt strings of the specific form that I like.
-// TODO: unit tests are failing
 package prompt
 
 import "fmt"
