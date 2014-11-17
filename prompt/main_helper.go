@@ -30,12 +30,10 @@ type Module interface {
 	// Always invoked on every Module before trying to match any of them.
 	Prepare(env *PromptEnv)
 
-  // Performs expensive queries and updates Memcache with the results.
-  UpdateCache(env *PromptEnv)
-
 	// If the match succeeds, modifies 'env' in-place and returns true. Otherwise,
-	// returns false.
-	Match(env *PromptEnv) bool
+	// returns false. If 'updateCache' is true, this call should do expensive
+  // operations and write their results to the cache.
+	Match(env *PromptEnv, updateCache bool) bool
 
 	// Returns a short string describing this Module.
 	Description() string
@@ -60,16 +58,9 @@ func DoMain(modules []Module) error {
 		module.Prepare(env)
 		LogTime(fmt.Sprintf("Begin Prepare(\"%s\")", module.Description()))
 	}
-  if *updateCache {
-    for _, module := range modules {
-	    LogTime(fmt.Sprintf("Begin UpdateCache(\"%s\")", module.Description()))
-      module.UpdateCache(env)
-		  LogTime(fmt.Sprintf("Begin UpdateCache(\"%s\")", module.Description()))
-    }
-  }
 	for _, module := range modules {
 		LogTime(fmt.Sprintf("Begin Match(\"%s\")", module.Description()))
-		var done bool = module.Match(env)
+		var done bool = module.Match(env, *updateCache)
 		LogTime(fmt.Sprintf("End Match(\"%s\")", module.Description()))
 
 		if done {

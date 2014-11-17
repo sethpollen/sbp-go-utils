@@ -44,9 +44,7 @@ type module struct{}
 func (self module) Prepare(env *prompt.PromptEnv) {}
 
 // TODO: Cache results of 'hg outgoing'
-func (self module) UpdateCache(env *prompt.PromptEnv) {}
-
-func (self module) Match(env *prompt.PromptEnv) bool {
+func (self module) Match(env *prompt.PromptEnv, updateCache bool) bool {
 	hgInfo, err := GetHgInfo(env.Pwd)
 	if err != nil {
 		return false

@@ -117,9 +117,7 @@ type module struct{}
 
 func (self module) Prepare(env *prompt.PromptEnv) {}
 
-func (self module) UpdateCache(env *prompt.PromptEnv) {}
-
-func (self module) Match(env *prompt.PromptEnv) bool {
+func (self module) Match(env *prompt.PromptEnv, updateCache bool) bool {
 	gitInfo, err := GetGitInfo(env.Pwd)
 	if err != nil {
 		return false
