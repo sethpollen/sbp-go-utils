@@ -136,14 +136,6 @@ func (self *PromptEnv) makePrompt() *Prompt {
 		fullPrompt.Write(pwd)
 		fullPrompt.Append(promptAfterPwd)
 	}
-
-  // TODO: Decide if this is bad.
-  fullPrompt.ClearStyle()
-  var extraSpace = self.Width - fullPrompt.Len()
-  for i := 0; i < extraSpace; i++ {
-    fullPrompt.Write("-")
-  }
-
 	fullPrompt.Write("\n")
 	fullPrompt.Append(&self.Flag)
 	fullPrompt.Style(Yellow, true)
