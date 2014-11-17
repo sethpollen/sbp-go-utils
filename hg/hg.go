@@ -12,6 +12,7 @@ import "path"
 import "strings"
 import "code.google.com/p/sbp-go-utils/prompt"
 import "code.google.com/p/sbp-go-utils/util"
+import "github.com/bradfitz/gomemcache/memcache"
 
 // Encapsulates information about an Hg repo.
 type HgInfo struct {
