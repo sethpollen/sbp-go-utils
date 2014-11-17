@@ -29,7 +29,8 @@ var statusBranchAheadRegex = regexp.MustCompile("^\\#\\# .* \\[ahead [0-9]+\\]$"
 // Queries a GitInfo for the repository that parents 'pwd'. If 'pwd' is not in
 // a Git repository, returns an error.
 func GetGitInfo(pwd string) (*GitInfo, error) {
-	repoPath, err := util.EvalCommandSync(pwd, "git", "rev-parse", "--show-toplevel")
+	repoPath, err :=
+    util.EvalCommandSync(pwd, "git", "rev-parse", "--show-toplevel")
 	if err != nil {
 		return nil, err
 	}
@@ -41,13 +42,15 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 	} else {
 		// We may be in a detached head. In that case, find the hash of the detached
 		// head revision.
-		branch, err = util.EvalCommandSync(pwd, "git", "rev-parse", "--short", "HEAD")
+		branch, err =
+      util.EvalCommandSync(pwd, "git", "rev-parse", "--short", "HEAD")
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	status, err := util.EvalCommandSync(pwd, "git", "status", "--branch", "--porcelain")
+	status, err :=
+    util.EvalCommandSync(pwd, "git", "status", "--branch", "--porcelain")
 	if err != nil {
 		return nil, err
 	}
