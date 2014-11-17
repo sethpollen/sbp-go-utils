@@ -71,7 +71,6 @@ func (self *PromptEnv) makePrompt() *Prompt {
 
 	// Construct the prompt text which must precede the PWD.
 	var promptBeforePwd = NewPrompt()
-  promptBeforePwd.Write("╭")
 
 	// Date and time.
 	promptBeforePwd.Style(Cyan, true)
@@ -137,7 +136,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 		fullPrompt.Write(pwd)
 		fullPrompt.Append(promptAfterPwd)
 	}
-	fullPrompt.Write("\n╰")
+	fullPrompt.Write("\n")
 	fullPrompt.Append(&self.Flag)
 	fullPrompt.Style(Yellow, true)
 	fullPrompt.Write("$ ")
