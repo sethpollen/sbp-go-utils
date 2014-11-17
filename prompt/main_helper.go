@@ -3,7 +3,6 @@
 // shell.
 package prompt
 
-import "errors"
 import "flag"
 import "fmt"
 import "log"
