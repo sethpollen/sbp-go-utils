@@ -110,7 +110,7 @@ func (self module) Match(env *prompt.PromptEnv, updateCache bool) bool {
     // Just try to read the cache.
     expensiveInfo, _ = readCachedInfo(hgInfo, env.Memcache)
   }
-  unpushed bool = (expensiveInfo != nil && expensiveInfo.Unpushed)
+  var unpushed bool = (expensiveInfo != nil && expensiveInfo.Unpushed)
 
 	env.Info = hgInfo.RepoName
   if hgInfo.Dirty || unpushed {
