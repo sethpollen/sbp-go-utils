@@ -41,6 +41,19 @@ func EvalCommand(outputChan chan<- string, errorChan chan<- error, pwd string,
 	}
 }
 
+// Synchronous wrapper around EvalCommand.
+func EvalCommandSync(pwd string, name string, args ...string) (string, error) {
+  var outputChan = make(chan string)
+  var errorChan = make(chan error)
+  go util.EvalCommand(outputChan, errorChan, pwd, name, args...)
+  select {
+  case err := <-errorChan:
+    return "", err
+  case output := <-outputChan:
+    return output, nil
+  }
+}
+
 // Returns the shortest prefix of 'p' for which 'test' returns true. Returns
 // an error if no prefix matched.
 func SearchParents(p string, test func(p string) bool) (string, error) {

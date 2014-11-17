@@ -22,19 +22,6 @@ type GitInfo struct {
 	Ahead bool
 }
 
-// Synchronous wrapper around util.EvalCommand.
-func evalCommand(pwd string, name string, args ...string) (string, error) {
-	var outputChan = make(chan string)
-	var errorChan = make(chan error)
-	go util.EvalCommand(outputChan, errorChan, pwd, name, args...)
-	select {
-	case err := <-errorChan:
-		return "", err
-	case output := <-outputChan:
-		return output, nil
-	}
-}
-
 // Regex to match the "branch" line from git status --branch --porcelain. If
 // this matches, the local branch is ahead of the remote branch.
 var statusBranchAheadRegex = regexp.MustCompile("^\\#\\# .* \\[ahead [0-9]+\\]$")
@@ -42,26 +29,25 @@ var statusBranchAheadRegex = regexp.MustCompile("^\\#\\# .* \\[ahead [0-9]+\\]$"
 // Queries a GitInfo for the repository that parents 'pwd'. If 'pwd' is not in
 // a Git repository, returns an error.
 func GetGitInfo(pwd string) (*GitInfo, error) {
-	repoPath, err := evalCommand(pwd, "git", "rev-parse", "--show-toplevel")
+	repoPath, err := util.EvalCommandSync(pwd, "git", "rev-parse", "--show-toplevel")
 	if err != nil {
 		return nil, err
 	}
 
-	branch, err := evalCommand(pwd, "git", "symbolic-ref", "HEAD")
+	branch, err := util.EvalCommandSync(pwd, "git", "symbolic-ref", "HEAD")
 	if err == nil {
 		var branchParts = strings.Split(branch, "/")
 		branch = branchParts[len(branchParts)-1]
 	} else {
 		// We may be in a detached head. In that case, find the hash of the detached
 		// head revision.
-		branch, err = evalCommand(pwd, "git", "rev-parse", "--short", "HEAD")
+		branch, err = util.EvalCommandSync(pwd, "git", "rev-parse", "--short", "HEAD")
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	// TODO: try passing --branch to compute whether we have unpushed changes.
-	status, err := evalCommand(pwd, "git", "status", "--branch", "--porcelain")
+	status, err := util.EvalCommandSync(pwd, "git", "status", "--branch", "--porcelain")
 	if err != nil {
 		return nil, err
 	}

@@ -17,22 +17,32 @@ type HgInfo struct {
 	RepoName string
 	// Pwd, relative to the root repo path.
 	RelativePwd string
+  // True if there are uncommitted local changes.
+  Dirty bool
 }
 
 func GetHgInfo(pwd string) (*HgInfo, error) {
-	repoPath, err := util.SearchParents(pwd, isHgRepo)
+	repoPath, err := util.SearchParents(pwd, isHgRepoRoot)
 	if err != nil {
 		return nil, errors.New("Not in an Hg repo")
 	}
+
+  // Now that we know we are in an Hg repo, it's worth paying the cost to run
+  // hg status.
+  status, err := util.EvalCommandSync(pwd, "hg", "status")
+  if err != nil {
+    return nil, err
+  }
 
   // TODO: include results of 'hg status' (i.e. dirty bit)
 	var info = new(HgInfo)
 	info.RepoName = path.Base(repoPath)
 	info.RelativePwd = util.RelativePath(pwd, repoPath)
+  info.Dirty = (status != "")
 	return info, nil
 }
 
-func isHgRepo(pwd string) bool {
+func isHgRepoRoot(pwd string) bool {
 	var metaDir = path.Join(pwd, ".hg")
 	fileInfo, err := os.Stat(metaDir)
 	return err == nil && fileInfo.IsDir()
@@ -50,6 +60,9 @@ func (self module) Match(env *prompt.PromptEnv, updateCache bool) bool {
 		return false
 	}
 	env.Info = hgInfo.RepoName
+  if hgInfo.Dirty {
+    env.Info += " *"
+  }
 	env.Flag.Style(prompt.Magenta, true)
 	env.Flag.Write("hg")
 	env.Pwd = hgInfo.RelativePwd
