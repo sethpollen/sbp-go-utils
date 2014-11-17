@@ -65,7 +65,8 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 
 	// Parse the git status result.
 	var scanner = bufio.NewScanner(strings.NewReader(status))
-	for scanner.Scan() {
+  // Stop looping of we set both Ahead and Dirty to true.
+	for scanner.Scan() && !(info.Ahead && info.Dirty) {
 		var line = scanner.Text()
 		if strings.HasPrefix(line, "## ") {
 			// This is the "branch" line.
