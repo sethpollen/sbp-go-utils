@@ -8,6 +8,7 @@ import "strings"
 import "time"
 import "unicode/utf8"
 import "code.google.com/p/sbp-go-utils/shell"
+import "github.com/bradfitz/gomemcache/memcache"
 
 // Collects information during construction of a prompt string.
 type PromptEnv struct {
@@ -28,13 +29,16 @@ type PromptEnv struct {
 	// Environment variables which should be emitted to the shell which uses this
 	// prompt.
 	EnvironMod shell.EnvironMod
+  // Handle to the local memcache instance.
+  Memcache *memcache.Client
 }
 
 // Generates a PromptEnv based on current environment variables. The maximum
 // number of characters which the prompt may occupy must be passed as 'width'.
-func NewPromptEnv(width int, exitCode int) *PromptEnv {
+func NewPromptEnv(width int, exitCode int, mc *memcache.Client) *PromptEnv {
 	var self = new(PromptEnv)
 	self.Now = time.Now()
+  self.Memcache = mc
 
 	user, err := user.Current()
 	if err != nil {

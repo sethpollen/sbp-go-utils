@@ -24,6 +24,8 @@ func GetHgInfo(pwd string) (*HgInfo, error) {
 	if err != nil {
 		return nil, errors.New("Not in an Hg repo")
 	}
+
+  // TODO: include results of 'hg status' (i.e. dirty bit)
 	var info = new(HgInfo)
 	info.RepoName = path.Base(repoPath)
 	info.RelativePwd = util.RelativePath(pwd, repoPath)
@@ -40,6 +42,9 @@ func isHgRepo(pwd string) bool {
 type module struct{}
 
 func (self module) Prepare(env *prompt.PromptEnv) {}
+
+// TODO: Cache results of 'hg outgoing'
+func (self module) UpdateCache(env *prompt.PromptEnv) {}
 
 func (self module) Match(env *prompt.PromptEnv) bool {
 	hgInfo, err := GetHgInfo(env.Pwd)

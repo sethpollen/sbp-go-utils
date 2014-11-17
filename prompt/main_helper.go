@@ -8,12 +8,15 @@ import "flag"
 import "fmt"
 import "log"
 import "time"
+import "github.com/bradfitz/gomemcache/memcache"
 
 // Required flags.
 var width = flag.Int("width", -1,
 	"Maximum number of characters which the output may occupy.")
 
 // Optional flags.
+var updateCache = flag.Bool("update_cache", false,
+  "True to perform expensive operations and update the cache.")
 var exitCode = flag.Int("exitcode", 0,
 	"Exit code of previous command. If absent, 0 is assumed.")
 var printTiming = flag.Bool("print_timing", false,
@@ -26,6 +29,9 @@ var processStart = time.Now()
 type Module interface {
 	// Always invoked on every Module before trying to match any of them.
 	Prepare(env *PromptEnv)
+
+  // Performs expensive queries and updates Memcache with the results.
+  UpdateCache(env *PromptEnv)
 
 	// If the match succeeds, modifies 'env' in-place and returns true. Otherwise,
 	// returns false.
@@ -48,14 +54,23 @@ func DoMain(modules []Module) error {
 		return errors.New("--width must be specified")
 	}
 
-	var env = NewPromptEnv(*width, *exitCode)
+	var env = NewPromptEnv(*width, *exitCode, memcache.New("localhost:11211"))
 	for _, module := range modules {
+		LogTime(fmt.Sprintf("Begin Prepare(\"%s\")", module.Description()))
 		module.Prepare(env)
+		LogTime(fmt.Sprintf("Begin Prepare(\"%s\")", module.Description()))
 	}
+  if *updateCache {
+    for _, module := range modules {
+	    LogTime(fmt.Sprintf("Begin UpdateCache(\"%s\")", module.Description()))
+      module.UpdateCache(env)
+		  LogTime(fmt.Sprintf("Begin UpdateCache(\"%s\")", module.Description()))
+    }
+  }
 	for _, module := range modules {
-		LogTime(fmt.Sprintf("Begin matching module \"%s\"", module.Description()))
+		LogTime(fmt.Sprintf("Begin Match(\"%s\")", module.Description()))
 		var done bool = module.Match(env)
-		LogTime(fmt.Sprintf("End matching module \"%s\"", module.Description()))
+		LogTime(fmt.Sprintf("End Match(\"%s\")", module.Description()))
 
 		if done {
 			break
