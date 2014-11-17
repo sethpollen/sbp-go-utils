@@ -10,11 +10,8 @@ import "log"
 import "time"
 import "github.com/bradfitz/gomemcache/memcache"
 
-// Required flags.
-var width = flag.Int("width", -1,
+var width = flag.Int("width", 100,
 	"Maximum number of characters which the output may occupy.")
-
-// Optional flags.
 var updateCache = flag.Bool("update_cache", false,
   "True to perform expensive operations and update the cache.")
 var exitCode = flag.Int("exitcode", 0,
@@ -46,11 +43,6 @@ func DoMain(modules []Module) error {
 
 	LogTime("Begin DoMain")
 	defer LogTime("End DoMain")
-
-	// Check flags.
-	if *width < 0 {
-		return errors.New("--width must be specified")
-	}
 
 	var env = NewPromptEnv(*width, *exitCode, memcache.New("localhost:11211"))
 	for _, module := range modules {
