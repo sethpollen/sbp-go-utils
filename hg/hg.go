@@ -34,7 +34,6 @@ func GetHgInfo(pwd string) (*HgInfo, error) {
     return nil, err
   }
 
-  // TODO: include results of 'hg status' (i.e. dirty bit)
 	var info = new(HgInfo)
 	info.RepoName = path.Base(repoPath)
 	info.RelativePwd = util.RelativePath(pwd, repoPath)
