@@ -45,7 +45,7 @@ func EvalCommand(outputChan chan<- string, errorChan chan<- error, pwd string,
 func EvalCommandSync(pwd string, name string, args ...string) (string, error) {
   var outputChan = make(chan string)
   var errorChan = make(chan error)
-  go util.EvalCommand(outputChan, errorChan, pwd, name, args...)
+  go EvalCommand(outputChan, errorChan, pwd, name, args...)
   select {
   case err := <-errorChan:
     return "", err
