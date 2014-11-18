@@ -87,7 +87,7 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 // prompt.
 func (info *GitInfo) String() string {
 	var str = info.RepoName
-	if info.RepoName != "master" {
+	if info.Branch != "master" {
 		str += ": " + info.Branch
 	}
 	if info.Ahead || info.Dirty {
