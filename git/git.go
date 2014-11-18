@@ -87,7 +87,7 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 // prompt.
 func (info *GitInfo) String() string {
 	var str = info.RepoName
-	if info.RepoName != info.Branch {
+	if info.RepoName != "master" {
 		str += ": " + info.Branch
 	}
 	if info.Ahead || info.Dirty {
@@ -113,7 +113,7 @@ func (self module) Match(env *prompt.PromptEnv, updateCache bool) bool {
 		return false
 	}
 	env.Info = gitInfo.String()
-	env.Flag.Style(prompt.Red, true)
+	env.Flag.Style(prompt.Red, prompt.Intense)
 	env.Flag.Write("git")
 	env.Pwd = gitInfo.RelativePwd
 	return true

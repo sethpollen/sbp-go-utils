@@ -19,6 +19,7 @@ type Prompt struct {
 	styleMarkers []StyleMarker
 }
 
+// Colors.
 const (
 	Black = iota
 	Red
@@ -29,6 +30,15 @@ const (
 	Cyan
 	White
 )
+
+// Font/color modifiers.
+const (
+  Dim = iota
+  Intense
+  Bold
+)
+
+const resetStyleEscape = "\033[0m"
 
 func NewPrompt() *Prompt {
 	var p = new(Prompt)
@@ -72,15 +82,19 @@ func (self *Prompt) lastMarker() *StyleMarker {
 }
 
 // Applies a new style at the end of this prompt, using the given foreground
-// color and boldness.
-func (prompt *Prompt) Style(color int, bold bool) {
-	var boldness int
-	if bold {
-		boldness = 1
-	} else {
-		boldness = 0
-	}
-	var escape = fmt.Sprintf("\033[%d;%dm", boldness, color+30)
+// color and modifier.
+func (prompt *Prompt) Style(color int, modifier int) {
+	var boldness int = 0
+  var colorOffset int = 30
+  switch modifier {
+    case Dim:
+    case Intense:
+      colorOffset = 90
+    case Bold:
+      boldness = 1
+      colorOffset = 90
+  }
+	var escape = fmt.Sprintf("\033[%d;%dm", boldness, color + colorOffset)
 	prompt.appendMarker(escape, len(prompt.text))
 }
 

@@ -73,7 +73,7 @@ func (self module) Match(env *prompt.PromptEnv, updateCache bool) bool {
   if hgInfo.Dirty {
     env.Info += " *"
   }
-	env.Flag.Style(prompt.Magenta, true)
+	env.Flag.Style(prompt.Magenta, prompt.Intense)
 	env.Flag.Write("hg")
 	env.Pwd = hgInfo.RelativePwd
 	return true

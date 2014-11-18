@@ -73,29 +73,29 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	var promptBeforePwd = NewPrompt()
 
 	// Date and time.
-	promptBeforePwd.Style(Cyan, true)
+	promptBeforePwd.Style(Cyan, Bold)
 	promptBeforePwd.Write(dateTime + " ")
 
 	// Hostname.
 	if runningOverSsh {
-		promptBeforePwd.Style(Yellow, false)
+		promptBeforePwd.Style(Yellow, Dim)
 		promptBeforePwd.Write("(")
 	}
-	promptBeforePwd.Style(Magenta, true)
+	promptBeforePwd.Style(Magenta, Bold)
 	promptBeforePwd.Write(shortHostname)
 	if runningOverSsh {
-		promptBeforePwd.Style(Yellow, false)
+		promptBeforePwd.Style(Yellow, Dim)
 		promptBeforePwd.Write(")")
 	}
 	promptBeforePwd.Write(" ")
 
 	// Info (if we got one).
 	if self.Info != "" {
-		promptBeforePwd.Style(White, false)
+		promptBeforePwd.Style(White, Dim)
 		promptBeforePwd.Write("[")
-		promptBeforePwd.Style(White, true)
+		promptBeforePwd.Style(White, Bold)
 		promptBeforePwd.Write(self.Info)
-		promptBeforePwd.Style(White, false)
+		promptBeforePwd.Style(White, Dim)
 		promptBeforePwd.Write("] ")
 	}
 
@@ -104,7 +104,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 
 	// Exit code.
 	if self.ExitCode != 0 {
-		promptAfterPwd.Style(Red, true)
+		promptAfterPwd.Style(Red, Bold)
 		promptAfterPwd.Write(fmt.Sprintf(" [%d]", self.ExitCode))
 	}
 
@@ -129,16 +129,16 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	if pwdOnItsOwnLine {
 		fullPrompt.Append(promptAfterPwd)
 		fullPrompt.Write("\n")
-		fullPrompt.Style(Cyan, true)
+		fullPrompt.Style(Cyan, Bold)
 		fullPrompt.Write(pwd)
 	} else {
-		fullPrompt.Style(Cyan, true)
+		fullPrompt.Style(Cyan, Bold)
 		fullPrompt.Write(pwd)
 		fullPrompt.Append(promptAfterPwd)
 	}
 	fullPrompt.Write("\n")
 	fullPrompt.Append(&self.Flag)
-	fullPrompt.Style(Yellow, true)
+	fullPrompt.Style(Yellow, Bold)
 	fullPrompt.Write("$ ")
 
 	return fullPrompt
@@ -152,7 +152,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 func (self *PromptEnv) makeRPrompt() *Prompt {
 	var rPrompt = NewPrompt()
 	if self.Info2 != "" {
-		rPrompt.Style(White, false)
+		rPrompt.Style(White, Dim)
 		rPrompt.Write(self.Info2)
 	}
 	return rPrompt
