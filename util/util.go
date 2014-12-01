@@ -81,12 +81,40 @@ func SearchParents(p string, test func(p string) bool) (string, error) {
 }
 
 // Takes in a file path and compresses its components to make the
-// path occupy fewer characters. Preserves a long enough prefix
-// for each component to disambiguate it from its sibling path
-// elements.
-func CompressPath(p string) string {
+// path occupy fewer characters, but don't compress smaller than 'stopLen'.
+// Preserves a long enough prefix for each component to disambiguate it from its
+// sibling path elements.
+func CompressPath(p string, stopLen int) (string, error) {
+  var original = []rune(p)
+  var compressed = make([]rune, 0, len(original))
+
+  for pos := 0; pos < len(original); {
+    var ch = original[pos]
+
+    if ch == '/' {
+      // Preserve path separators.
+      compressed = append(compressed, ch)
+      pos++
+      continue
+    }
+
+    // Find the next slash.
+    pos++
+    for pos < len(original) && original[pos] != '/' {
+      pos++
+    }
+    if pos >= len(original) {
+      // This is the last path component.
+      // TODO:
+    }
+
+    // Grab this path component.
+    // var pathUpToThisComponent = original[0:pos]
+    // TODO:
+  }
+
   // TODO:
-  return ""
+  return string(compressed), nil
 }
 
 // Compresses the final component of the path 'p'. Returns the length (in runes)
