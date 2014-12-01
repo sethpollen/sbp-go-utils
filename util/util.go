@@ -1,6 +1,7 @@
 package util
 
 import "errors"
+import "io/ioutil"
 import "os/exec"
 import "path"
 import "strings"
@@ -78,3 +79,63 @@ func SearchParents(p string, test func(p string) bool) (string, error) {
 
 	return "", errors.New("No prefix matched")
 }
+
+// Takes in a file path and compresses its components to make the
+// path occupy fewer characters. Preserves a long enough prefix
+// for each component to disambiguate it from its sibling path
+// elements.
+func CompressPath(p string) string {
+  // TODO:
+  return ""
+}
+
+// Compresses the final component of the path 'p'. Returns the length (in runes)
+// of the compressed prefix of the final component.
+func compressPathComponent(p string) (int, error) {
+  dir, file := path.Split(p)
+  var fileRunes = []rune(file)
+
+  entries, err := ioutil.ReadDir(dir)
+  if err != nil {
+    return -1, err
+  }
+
+  // The length of the prefix of 'file' which is required to disambiguate it
+  // from all of its siblings in the filesystem.
+  var prefixLen = 0
+  for _, entry := range entries {
+    var sibling = entry.Name()
+    if sibling == file {
+      // This is the file itself; no disambiguation is necessary.
+      continue
+    }
+    var siblingRunes = []rune(sibling)
+
+    for i := 0; i < min(len(fileRunes), len(siblingRunes)); i++ {
+      // Include this character in the compressed prefix.
+      prefixLen = max(prefixLen, i)
+      if fileRunes[i] != siblingRunes[i] {
+        // This character disambiguates.
+        break
+      }
+    }
+  }
+  return prefixLen, nil
+}
+
+func min(a, b int) int {
+  if a < b {
+    return a
+  } else {
+    return b
+  }
+}
+
+func max(a, b int) int {
+  if a > b {
+    return a
+  } else {
+    return b
+  }
+}
+
