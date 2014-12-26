@@ -7,7 +7,7 @@ import "flag"
 import "fmt"
 import "log"
 import "time"
-import "github.com/bradfitz/gomemcache/memcache"
+import "code.google.com/p/sbp-go-utils/util"
 
 var width = flag.Int("width", 100,
 	"Maximum number of characters which the output may occupy.")
@@ -43,7 +43,7 @@ func DoMain(modules []Module) error {
 	LogTime("Begin DoMain")
 	defer LogTime("End DoMain")
 
-	var env = NewPromptEnv(*width, *exitCode, memcache.New("localhost:11211"))
+	var env = NewPromptEnv(*width, *exitCode, util.LocalMemcache())
 	for _, module := range modules {
 		LogTime(fmt.Sprintf("Begin Prepare(\"%s\")", module.Description()))
 		module.Prepare(env)

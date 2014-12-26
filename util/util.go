@@ -5,6 +5,12 @@ import "io/ioutil"
 import "os/exec"
 import "path"
 import "strings"
+import "github.com/bradfitz/gomemcache/memcache"
+
+// Gets a connection to the local memcached.
+func LocalMemcache() *memcache.Client {
+  return memcache.New("localhost:11211")
+}
 
 // Tries to make a version of 'path' which is relative to 'prefix'. If that
 // fails, returns 'path' unchanged.
