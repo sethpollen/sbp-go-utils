@@ -80,6 +80,29 @@ func SearchParents(p string, test func(p string) bool) (string, error) {
 	return "", errors.New("No prefix matched")
 }
 
+// Returns the longest common prefix of strings in 'p'.
+func GetLongestCommonPrefix(p []string) string {
+  if len(p) == 0 {
+    return ""
+  }
+  var longestPrefix = p[0]
+  for _, s := range p {
+    var minLen = min(len(s), len(longestPrefix))
+    var i = 0
+    for ; i < minLen; i++ {
+      if s[i] != longestPrefix[i] {
+        break
+      }
+    }
+    // 'i' now contains the index of the first character that did not match
+    // between 's' and 'longestPrefix'.
+    if i <= len(longestPrefix) {
+      longestPrefix = longestPrefix[0:i]
+    }
+  }
+  return longestPrefix
+}
+
 // Takes in a file path and compresses its components to make the
 // path occupy fewer characters, but don't compress smaller than 'stopLen'.
 // Preserves a long enough prefix for each component to disambiguate it from its

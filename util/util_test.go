@@ -111,3 +111,7 @@ func TestSearchParentsMatchLoneSlash(t *testing.T) {
 		t.Errorf("Expected \"/\", got \"%s\"", match)
 	}
 }
+
+func TestGetLongestPrefix(t *testing.T) {
+  // TODO:
+}
