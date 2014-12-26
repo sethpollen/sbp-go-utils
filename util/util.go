@@ -109,6 +109,66 @@ func GetLongestCommonPrefix(p []string) string {
   return longestPrefix
 }
 
+// Splits a path into all of its individual components.
+func SplitPath(p string) []string {
+  p = path.Clean(p)
+
+  var components []string
+  for {
+    if p == "" {
+      break
+    }
+    if p == "/" {
+      components = append(components, "/")
+      break
+    }
+    parent, child := path.Split(p)
+    p = parent
+    components = append(components, child)
+  }
+
+  // We must now reverse the components slice.
+  for i := 0; i < len(components) / 2; i++ {
+    var j = (len(components) - 1) - i
+    var temp = components[i]
+    components[i] = components[j]
+    components[j] = temp
+  }
+
+  return components
+}
+
+// Gets a prefix of 'individual' which uniquely identifies it among all the
+// 'population'. Returns the longest such prefix up to 'stopLen', after which
+// returns the shortest such prefix.
+func getShortestDistinctPrefix(
+    individual string, population []string, stopLen int) string {
+  var individualRunes = []rune(individual)
+  if len(individualRunes) <= stopLen {
+    // No shortening is required.
+    return individual
+  }
+  var runesToKeep = stopLen
+  // Look over the population, possibly increasing runesToKeep in order to
+  // preserve distinctness.
+  for _, member := range population {
+    for i, memberRune := range member {
+      if i >= len(individualRunes) {
+        // There are no more runes we can keep from 'individual'.
+        break;
+      }
+      // We should keep this rune.
+      runesToKeep = max(runesToKeep, i)
+      if individualRunes[i] != memberRune {
+        // We found a dissimilarity, so we can stop keeping more runes.
+        // Move on to the next member.
+        break
+      }
+    }
+  }
+  return string(individualRunes[0:runesToKeep])
+}
+
 // Takes in a file path and compresses its components to make the
 // path occupy fewer characters, but don't compress smaller than 'stopLen'.
 // Preserves a long enough prefix for each component to disambiguate it from its

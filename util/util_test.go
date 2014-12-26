@@ -130,3 +130,27 @@ func TestGetLongestPrefix(t *testing.T) {
     t.Errorf("Expected H, got %s", result)
   }
 }
+
+func TestSplitPath(t *testing.T) {
+  type TestData struct {
+    in string
+    out []string
+  }
+  var testData = []TestData{
+    {"", []string{}},
+    {"/", []string{"/"}},
+  }
+  for _, testDatum := range testData {
+    var actual = SplitPath(testDatum.in)
+    if len(actual) != len(testDatum.out) {
+      t.Errorf("Got wrong number of elements when splitting %s: %d",
+               testDatum.in, len(actual))
+    } else {
+      for i := 0; i < len(actual); i++ {
+        if actual[i] != testDatum.out[i] {
+          t.Errorf("Got wrong element at position %d: %s", i, actual[i])
+        }
+      }
+    }
+  }
+}
