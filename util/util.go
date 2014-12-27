@@ -88,6 +88,7 @@ func SearchParents(p string, test func(p string) bool) (string, error) {
 
 // Returns the longest common prefix of strings in 'p'.
 func GetLongestCommonPrefix(p []string) string {
+  // TODO: make this rune-aware
   if len(p) == 0 {
     return ""
   }
