@@ -6,7 +6,7 @@ import "time"
 import "code.google.com/p/sbp-go-utils/shell"
 
 var env = PromptEnv{time.Unix(0, 0), "/home/me", "", "myhost.example.com", "",
-	"", *NewPrompt(), 0, 100, *shell.NewEnvironMod(), nil}
+	"", *NewStyledString(), 0, 100, *shell.NewEnvironMod(), nil}
 
 func assertMakePrompt(t *testing.T, expected string, width int, info string,
 	info2 string, pwd string, exitCode int, flag string) {

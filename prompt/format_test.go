@@ -3,8 +3,8 @@ package prompt
 import "strconv"
 import "testing"
 
-func TestEmptyPrompt(t *testing.T) {
-	var p = NewPrompt()
+func TestEmptyStyledString(t *testing.T) {
+	var p = NewStyledString()
 	if p.String() != "%{\033[0m%}%{\033[0m%}" {
 		t.Error("String ==", strconv.Quote(p.String()))
 	}
@@ -14,7 +14,7 @@ func TestEmptyPrompt(t *testing.T) {
 }
 
 func TestNoFormatting(t *testing.T) {
-	var p = NewPrompt()
+	var p = NewStyledString()
 	p.Write("ABC")
 	if p.String() != "%{\033[0m%}ABC%{\033[0m%}" {
 		t.Error("String ==", strconv.Quote(p.String()))
@@ -25,7 +25,7 @@ func TestNoFormatting(t *testing.T) {
 }
 
 func TestFormatting(t *testing.T) {
-	var p = NewPrompt()
+	var p = NewStyledString()
 	p.Write("A")
 	p.Style(Yellow, Bold)
 	p.Write("B")
@@ -46,8 +46,8 @@ func TestFormatting(t *testing.T) {
 }
 
 func TestAppend(t *testing.T) {
-	var p = NewPrompt()
-	var q = NewPrompt()
+	var p = NewStyledString()
+	var q = NewStyledString()
 	p.Style(Yellow, Bold)
 	p.Write("This is p.")
 	q.Write("This ")

@@ -21,7 +21,7 @@ type PromptEnv struct {
 	// A secondary info string. Displayed using $RPROMPT.
 	Info2 string
 	// A short string to place before the final $ in the prompt.
-	Flag Prompt
+	Flag StyledString
 	// Exit code of the last process run in the shell.
 	ExitCode int
 	// Maximum number of characters which prompt may occupy horizontally.
@@ -53,14 +53,14 @@ func NewPromptEnv(width int, exitCode int, mc *memcache.Client) *PromptEnv {
 	self.Info2 = ""
 	self.ExitCode = exitCode
 	self.Width = width
-	self.Flag = *NewPrompt()
+	self.Flag = *NewStyledString()
 	self.EnvironMod = *shell.NewEnvironMod()
 
 	return self
 }
 
 // Generates a shell prompt string.
-func (self *PromptEnv) makePrompt() *Prompt {
+func (self *PromptEnv) makePrompt() *StyledString {
 	// If the hostname is a full domain name, remove all but the first domain
 	// component.
 	var shortHostname = strings.SplitN(self.Hostname, ".", 2)[0]
@@ -70,7 +70,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	var dateTime = self.Now.Format("01/02 15:04")
 
 	// Construct the prompt text which must precede the PWD.
-	var promptBeforePwd = NewPrompt()
+	var promptBeforePwd = NewStyledString()
 
 	// Date and time.
 	promptBeforePwd.Style(Cyan, Bold)
@@ -100,7 +100,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	}
 
 	// Construct the prompt text which must follow the PWD.
-	var promptAfterPwd = NewPrompt()
+	var promptAfterPwd = NewStyledString()
 
 	// Exit code.
 	if self.ExitCode != 0 {
@@ -124,7 +124,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	var pwdPrompt = self.formatPwd(pwdWidth)
 
 	// Build the complete prompt string.
-	var fullPrompt = NewPrompt()
+	var fullPrompt = NewStyledString()
 	fullPrompt.Append(promptBeforePwd)
 	if pwdOnItsOwnLine {
 		fullPrompt.Append(promptAfterPwd)
@@ -147,8 +147,8 @@ func (self *PromptEnv) makePrompt() *Prompt {
 // a long command, so it should not be super important. self.Info2 will be the
 // content displayed.
 // TODO: unit test
-func (self *PromptEnv) makeRPrompt() *Prompt {
-	var rPrompt = NewPrompt()
+func (self *PromptEnv) makeRPrompt() *StyledString {
+	var rPrompt = NewStyledString()
 	if self.Info2 != "" {
 		rPrompt.Style(White, Dim)
 		rPrompt.Write(self.Info2)
@@ -168,7 +168,7 @@ func (self *PromptEnv) makeTitle() string {
 }
 
 // Formats the PWD for use in a prompt.
-func (self *PromptEnv) formatPwd(width int) *Prompt {
+func (self *PromptEnv) formatPwd(width int) *StyledString {
 	// Perform tilde collapsing on the PWD.
 	var home = self.Home
 	if strings.HasSuffix(home, "/") {
@@ -196,7 +196,8 @@ func (self *PromptEnv) formatPwd(width int) *Prompt {
 			pwd = ".." + pwd[start:]
 		}
 	}
-  var pwdPrompt = new(Prompt)
+  // TODO: rename variables containing "prompt" in the name
+  var pwdPrompt = NewStyledString()
   pwdPrompt.Style(Cyan, Bold)
   pwdPrompt.Write(pwd)
 	return pwdPrompt
