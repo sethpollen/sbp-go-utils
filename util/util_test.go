@@ -137,14 +137,25 @@ func TestSplitPath(t *testing.T) {
     out []string
   }
   var testData = []TestData{
-    {"", []string{}},
+    {"", []string{"."}},
+    {".", []string{"."}},
     {"/", []string{"/"}},
+    {"/.", []string{"/"}},
+    {"a/b", []string{"a", "b"}},
+    {"a/b/", []string{"a", "b"}},
+    {"a/b/.", []string{"a", "b"}},
+    {"/a/b", []string{"/", "a", "b"}},
+    {"/a/b/", []string{"/", "a", "b"}},
+    {"/a/b/.", []string{"/", "a", "b"}},
+    {"/a/../b", []string{"/", "b"}},
+    {"/a/../b/", []string{"/", "b"}},
+    {"/a/../b/.", []string{"/", "b"}},
   }
   for _, testDatum := range testData {
     var actual = SplitPath(testDatum.in)
     if len(actual) != len(testDatum.out) {
-      t.Errorf("Got wrong number of elements when splitting %s: %d",
-               testDatum.in, len(actual))
+      t.Errorf("Got wrong number of elements when splitting %s: %v",
+               testDatum.in, actual)
     } else {
       for i := 0; i < len(actual); i++ {
         if actual[i] != testDatum.out[i] {

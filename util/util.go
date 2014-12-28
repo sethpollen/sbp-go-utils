@@ -88,16 +88,16 @@ func SearchParents(p string, test func(p string) bool) (string, error) {
 
 // Returns the longest common prefix of strings in 'p'.
 func GetLongestCommonPrefix(p []string) string {
-  // TODO: make this rune-aware
   if len(p) == 0 {
     return ""
   }
-  var longestPrefix = p[0]
+  var longestPrefix = []rune(p[0])
   for _, s := range p {
-    var minLen = min(len(s), len(longestPrefix))
+    var sRunes = []rune(s)
+    var minLen = min(len(sRunes), len(longestPrefix))
     var i = 0
     for ; i < minLen; i++ {
-      if s[i] != longestPrefix[i] {
+      if sRunes[i] != longestPrefix[i] {
         break
       }
     }
@@ -107,7 +107,7 @@ func GetLongestCommonPrefix(p []string) string {
       longestPrefix = longestPrefix[0:i]
     }
   }
-  return longestPrefix
+  return string(longestPrefix)
 }
 
 // Splits a path into all of its individual components.
@@ -124,6 +124,9 @@ func SplitPath(p string) []string {
       break
     }
     parent, child := path.Split(p)
+    if parent != "/" {
+      parent = strings.TrimSuffix(parent, "/")
+    }
     p = parent
     components = append(components, child)
   }
