@@ -114,6 +114,37 @@ func (self *StyledString) Append(other *StyledString) {
 	}
 }
 
+// Removes the first 'trim' bytes of text.
+// TODO: test
+func (self *StyledString) TrimLeft(trim int) {
+  // TODO:
+}
+
+// Removes the last 'trim' bytes of text.
+// TODO: test
+func (self *StyledString) TrimRight(trim int) {
+  self.text = self.text[0:len(self.text)-trim]
+  self.trimMarkers()
+}
+
+// Removes markers which are off the end of the string.
+func (self *StyledString) trimMarkers() {
+  for {
+    var last = self.lastMarker()
+    if last == nil {
+      break
+    }
+    if last.pos > len(self.text) {
+      // Drop this marker, since it won't even apply to the next character
+      // added to the string.
+      self.styleMarkers = self.styleMarkers[0:len(self.styleMarkers)-1]
+      continue
+    }
+    // Don't drop any more markers.
+    break
+  }
+}
+
 // Serializes this StyledString to a string with embedded ANSI escape
 // sequences.
 func (self *StyledString) String() string {

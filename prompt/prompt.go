@@ -196,11 +196,11 @@ func (self *PromptEnv) formatPwd(width int) *StyledString {
 			pwd = "…" + pwd[start:]
 		}
 	}
-  // TODO: rename variables containing "prompt" in the name
-  var pwdPrompt = NewStyledString()
-  pwdPrompt.Style(Cyan, Bold)
-  pwdPrompt.Write(pwd)
-	return pwdPrompt
+
+  var styledPwd = NewStyledString()
+  styledPwd.Style(Cyan, Bold)
+  styledPwd.Write(pwd)
+	return styledPwd
 }
 
 // Renders all the information from this PromptEnv into a shell script which
