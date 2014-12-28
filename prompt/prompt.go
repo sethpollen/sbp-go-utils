@@ -129,11 +129,9 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	if pwdOnItsOwnLine {
 		fullPrompt.Append(promptAfterPwd)
 		fullPrompt.Write("\n")
-		fullPrompt.Style(Cyan, Bold)
-		fullPrompt.Write(pwd)
+		fullPrompt.Append(pwd)
 	} else {
-		fullPrompt.Style(Cyan, Bold)
-		fullPrompt.Write(pwd)
+		fullPrompt.Append(pwd)
 		fullPrompt.Append(promptAfterPwd)
 	}
 	fullPrompt.Write("\n")
@@ -166,11 +164,11 @@ func (self *PromptEnv) makeTitle() string {
 		info = fmt.Sprintf("[%s]", self.Info)
 	}
 	var pwdWidth = self.Width - utf8.RuneCountInString(info)
-	return info + self.formatPwd(pwdWidth)
+	return info + self.formatPwd(pwdWidth).PlainString()
 }
 
 // Formats the PWD for use in a prompt.
-func (self *PromptEnv) formatPwd(width int) string {
+func (self *PromptEnv) formatPwd(width int) *Prompt {
 	// Perform tilde collapsing on the PWD.
 	var home = self.Home
 	if strings.HasSuffix(home, "/") {
@@ -196,7 +194,10 @@ func (self *PromptEnv) formatPwd(width int) string {
 			pwd = ".." + pwd[start:]
 		}
 	}
-	return pwd
+  var pwdPrompt = new(Prompt)
+  pwdPrompt.Style(Cyan, Bold)
+  pwdPrompt.Write(pwd)
+	return pwdPrompt
 }
 
 // Renders all the information from this PromptEnv into a shell script which

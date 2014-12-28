@@ -132,3 +132,8 @@ func (prompt *Prompt) String() string {
 	buffer += "%{\033[0m%}"
 	return buffer
 }
+
+// Returns just the text fro this Prompt, without any formatting.
+func (prompt* Prompt) PlainString() string {
+  return prompt.text
+}
