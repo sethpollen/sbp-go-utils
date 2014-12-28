@@ -182,6 +182,8 @@ func (self *PromptEnv) formatPwd(width int) *Prompt {
 		pwd = "/"
 	}
 
+  // TODO: special highlighting for corp-specific paths
+
 	// Subtract 2 in case we have to include the ".." characters.
 	var pwdRunes = utf8.RuneCountInString(pwd)
 	var start = pwdRunes - (width - 2)
