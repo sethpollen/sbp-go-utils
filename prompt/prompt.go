@@ -184,16 +184,16 @@ func (self *PromptEnv) formatPwd(width int) *StyledString {
 
   // TODO: special highlighting for corp-specific paths
 
-	// Subtract 2 in case we have to include the ".." characters.
+	// Subtract 1 in case we have to include the bullet character.
 	var pwdRunes = utf8.RuneCountInString(pwd)
-	var start = pwdRunes - (width - 2)
+	var start = pwdRunes - (width - 1)
 	if start > 0 {
 		// Truncate the PWD.
 		if start >= pwdRunes {
 			// There is no room for the PWD at all.
 			pwd = ""
 		} else {
-			pwd = ".." + pwd[start:]
+			pwd = "•" + pwd[start:]
 		}
 	}
   // TODO: rename variables containing "prompt" in the name
