@@ -121,7 +121,7 @@ func (self *PromptEnv) makePrompt() *Prompt {
 		pwdOnItsOwnLine = true
 	}
 
-	var pwd = self.formatPwd(pwdWidth)
+	var pwdPrompt = self.formatPwd(pwdWidth)
 
 	// Build the complete prompt string.
 	var fullPrompt = NewPrompt()
@@ -129,9 +129,9 @@ func (self *PromptEnv) makePrompt() *Prompt {
 	if pwdOnItsOwnLine {
 		fullPrompt.Append(promptAfterPwd)
 		fullPrompt.Write("\n")
-		fullPrompt.Append(pwd)
+		fullPrompt.Append(pwdPrompt)
 	} else {
-		fullPrompt.Append(pwd)
+		fullPrompt.Append(pwdPrompt)
 		fullPrompt.Append(promptAfterPwd)
 	}
 	fullPrompt.Write("\n")
