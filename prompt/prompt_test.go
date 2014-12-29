@@ -17,7 +17,7 @@ func assertMakePrompt(t *testing.T, expected string, width int, info string,
 	myEnv.Flag.Write(flag)
 	myEnv.Width = width
 	myEnv.ExitCode = exitCode
-	var p = myEnv.makePrompt()
+	var p = myEnv.makePrompt(nil)
 	if p.String() != expected {
 		t.Errorf("\nExpected %s"+
 			"\nGot      %s",
@@ -29,7 +29,7 @@ func assertMakeTitle(t *testing.T, expected string, info string, pwd string) {
 	var myEnv = env
 	myEnv.Pwd = pwd
 	myEnv.Info = info
-	var actual = myEnv.makeTitle()
+	var actual = myEnv.makeTitle(nil)
 	if actual != expected {
 		t.Errorf("Expected %s\nGot %s",
 			strconv.Quote(expected), strconv.Quote(actual))

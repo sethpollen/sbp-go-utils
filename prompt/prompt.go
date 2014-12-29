@@ -60,7 +60,8 @@ func NewPromptEnv(width int, exitCode int, mc *memcache.Client) *PromptEnv {
 }
 
 // Generates a shell prompt string.
-func (self *PromptEnv) makePrompt() *StyledString {
+func (self *PromptEnv) makePrompt(
+	pwdMod func (in *StyledString) *StyledString) *StyledString {
 	// If the hostname is a full domain name, remove all but the first domain
 	// component.
 	var shortHostname = strings.SplitN(self.Hostname, ".", 2)[0]
@@ -121,7 +122,7 @@ func (self *PromptEnv) makePrompt() *StyledString {
 		pwdOnItsOwnLine = true
 	}
 
-	var pwdPrompt = self.formatPwd(nil, pwdWidth)
+	var pwdPrompt = self.formatPwd(pwdMod, pwdWidth)
 
 	// Build the complete prompt string.
 	var fullPrompt = NewStyledString()
@@ -158,16 +159,18 @@ func (self *PromptEnv) makeRPrompt() *StyledString {
 
 // Generates a terminal emulator title bar string. Similar to a shell prompt
 // string, but lacks formatting escapes.
-func (self *PromptEnv) makeTitle() string {
+func (self *PromptEnv) makeTitle(
+	pwdMod func (in *StyledString) *StyledString) string {
 	var info = ""
 	if self.Info != "" {
 		info = fmt.Sprintf("[%s]", self.Info)
 	}
 	var pwdWidth = self.Width - utf8.RuneCountInString(info)
-	return info + self.formatPwd(nil, pwdWidth).PlainString()
+	return info + self.formatPwd(pwdMod, pwdWidth).PlainString()
 }
 
-// Formats the PWD for use in a prompt.
+// Formats the PWD for use in a prompt. 'mod' is an arbitrary transformation
+// to apply to the full PWD before it is (potentially) truncated.
 func (self *PromptEnv) formatPwd(
 	mod func (in *StyledString) *StyledString, width int) *StyledString {
 	// Perform tilde collapsing on the PWD.
@@ -190,7 +193,6 @@ func (self *PromptEnv) formatPwd(
   if mod != nil {
     styledPwd = mod(styledPwd)
   }
-  // TODO: special highlighting for corp-specific paths
 
 	// Subtract 1 in case we have to include the ellipsis character.
 	var pwdRunes = utf8.RuneCountInString(styledPwd.PlainString())
@@ -219,12 +221,13 @@ func (self *PromptEnv) formatPwd(
 //   RPROMPT
 //   TERM_TITLE
 //   ... plus any other variables set in self.EnvironMod.
-func (self *PromptEnv) ToScript() string {
+func (self *PromptEnv) ToScript(
+	pwdMod func(in *StyledString) *StyledString) string {
 	// Start by making a copy of the custom EnvironMod.
 	var mod = self.EnvironMod
 	// Now add our variables to it.
-	mod.SetVar("PROMPT", self.makePrompt().String())
+	mod.SetVar("PROMPT", self.makePrompt(pwdMod).String())
 	mod.SetVar("RPROMPT", self.makeRPrompt().String())
-	mod.SetVar("TERM_TITLE", self.makeTitle())
+	mod.SetVar("TERM_TITLE", self.makeTitle(pwdMod))
 	return mod.ToScript()
 }
