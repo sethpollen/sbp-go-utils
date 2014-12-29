@@ -132,6 +132,35 @@ func TestTrimLast(t *testing.T) {
 
   // Issue a trim that doesn't touch any style markers.
   p.TrimLast(1)
-  // TODO:
+
+  var expected1 = NewStyledString()
+  expected1.Style(Yellow, Bold)
+  expected1.Write("ABC")
+  expected1.Style(Green, Dim)
+  expected1.Write("DEF")
+  expected1.Style(Cyan, Intense)
+  expected1.Write("GH")
+  if p.String() != expected1.String() {
+    t.Error("String ==", strconv.Quote(p.String()))
+  }
+
+  // Issue a trim that removes two style markers.
+  p.TrimLast(6)
+
+  var expected2 = NewStyledString()
+  expected2.Style(Yellow, Bold)
+  expected2.Write("AB")
+  if p.String() != expected2.String() {
+    t.Error("String ==", strconv.Quote(p.String()))
+  }
+
+  // Trim away everything.
+  p.TrimLast(2)
+
+  var expected3 = NewStyledString()
+  expected3.Style(Yellow, Bold)
+  if p.String() != expected3.String() {
+    t.Error("String ==", strconv.Quote(p.String()))
+  }
 }
 
