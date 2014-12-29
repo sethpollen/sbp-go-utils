@@ -88,7 +88,7 @@ func (self *StyledString) Style(color int, modifier int) {
 	var boldness int = 0
   var colorOffset int = 30
   switch modifier {
-    case Dim:
+    case Dim: // Nothing.
     case Intense:
       colorOffset = 90
     case Bold:
@@ -115,17 +115,15 @@ func (self *StyledString) Append(other *StyledString) {
 }
 
 // Removes the first 'trim' bytes of text.
-// TODO: test
 func (self *StyledString) TrimFirst(trim int) {
-  self.text = self.text[trim:len(self.text)-trim]
-  for i := 0; i <= len(self.styleMarkers); i++ {
+  self.text = self.text[trim:len(self.text)]
+  for i := 0; i < len(self.styleMarkers); i++ {
     self.styleMarkers[i].pos -= trim
   }
   self.trimMarkers()
 }
 
 // Removes the last 'trim' bytes of text.
-// TODO: test
 func (self *StyledString) TrimLast(trim int) {
   self.text = self.text[0:len(self.text)-trim]
   self.trimMarkers()
@@ -134,25 +132,28 @@ func (self *StyledString) TrimLast(trim int) {
 // Removes markers which are off the end of the string.
 func (self *StyledString) trimMarkers() {
   // Remove markers with negative offsets.
-  for i := 0; i < len(self.styleMarkers); i++ {
-    if self.styleMarkers[i].pos >= 0 {
+  for {
+    if len(self.styleMarkers) == 0 {
+      break
+    }
+    if self.styleMarkers[0].pos >= 0 {
       // No more markers to trim.
       break
     }
-    if i + 1 >= len(self.styleMarkers) {
+    if len(self.styleMarkers) < 2 {
       // This is the last StyleMarker in the string, so promote it to position
       // zero.
-      self.styleMarkers[i].pos = 0
+      self.styleMarkers[0].pos = 0
       break
     }
-    if self.styleMarkers[i+1].pos > 0 {
+    if self.styleMarkers[1].pos > 0 {
       // This style marker still applies to some characters, so promote it
       // to position zero.
-      self.styleMarkers[i].pos = 0
+      self.styleMarkers[0].pos = 0
       break
     }
     // Drop this marker.
-    self.styleMarkers = self.styleMarkers[1:len(self.styleMarkers)-1]
+    self.styleMarkers = self.styleMarkers[1:len(self.styleMarkers)]
   }
 
   // Remove markers with offsets past the end of the string.

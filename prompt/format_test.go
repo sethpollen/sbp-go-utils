@@ -62,3 +62,76 @@ func TestAppend(t *testing.T) {
 		t.Error("Len ==", p.Len())
 	}
 }
+
+func TestTrimFirst(t *testing.T) {
+  var p = NewStyledString()
+  p.Write("ZZZ")
+  p.Style(Yellow, Bold)
+  p.Write("ABC")
+  p.Style(Green, Dim)
+  p.Write("DEF")
+  p.Style(Cyan, Intense)
+  p.Write("GHI")
+
+  // Issue a trim that doesn't touch any style markers.
+  p.TrimFirst(3)
+
+  var expected1 = NewStyledString()
+  expected1.Style(Yellow, Bold)
+  expected1.Write("ABC")
+  expected1.Style(Green, Dim)
+  expected1.Write("DEF")
+  expected1.Style(Cyan, Intense)
+  expected1.Write("GHI")
+  if p.String() != expected1.String() {
+    t.Error("String ==", strconv.Quote(p.String()))
+  }
+
+  // Trim so that the first style marker must be advanced.
+  p.TrimFirst(1)
+
+  var expected2 = NewStyledString()
+  expected2.Style(Yellow, Bold)
+  expected2.Write("BC")
+  expected2.Style(Green, Dim)
+  expected2.Write("DEF")
+  expected2.Style(Cyan, Intense)
+  expected2.Write("GHI")
+  if p.String() != expected2.String() {
+    t.Error("String ==", strconv.Quote(p.String()))
+  }
+
+  // Trim away the remaining two style markers.
+  p.TrimFirst(6)
+
+  var expected3 = NewStyledString()
+  expected3.Style(Cyan, Intense)
+  expected3.Write("HI")
+  if p.String() != expected3.String() {
+    t.Error("String ==", strconv.Quote(p.String()))
+  }
+
+  // Trim away everything.
+  p.TrimFirst(2)
+
+  var expected4 = NewStyledString()
+  expected4.Style(Cyan, Intense)
+  if p.String() != expected4.String() {
+    t.Error("String ==", strconv.Quote(p.String()))
+  }
+}
+
+func TestTrimLast(t *testing.T) {
+  var p = NewStyledString()
+  p.Style(Yellow, Bold)
+  p.Write("ABC")
+  p.Style(Green, Dim)
+  p.Write("DEF")
+  p.Style(Cyan, Intense)
+  p.Write("GHI")
+
+  // Issue a trim that doesn't touch any style markers.
+  p.TrimLast(1)
+  // TODO:
+}
+
