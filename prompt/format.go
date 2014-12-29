@@ -39,8 +39,8 @@ const (
 )
 
 type Style struct {
-  int Color  // Black, Red, etc.
-  int Modifier  // Dim, Intense, or Bold.
+  Color int  // Black, Red, etc.
+  Modifier int  // Dim, Intense, or Bold.
 }
 
 const resetStyleEscape = "\033[0m"
