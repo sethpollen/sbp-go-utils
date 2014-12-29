@@ -38,6 +38,11 @@ const (
   Bold
 )
 
+type Style struct {
+  int Color  // Black, Red, etc.
+  int Modifier  // Dim, Intense, or Bold.
+}
+
 const resetStyleEscape = "\033[0m"
 
 func NewStyledString() *StyledString {
