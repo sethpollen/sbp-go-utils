@@ -121,7 +121,7 @@ func (self *PromptEnv) makePrompt() *StyledString {
 		pwdOnItsOwnLine = true
 	}
 
-	var pwdPrompt = self.formatPwd(pwdWidth)
+	var pwdPrompt = self.formatPwd(nil, pwdWidth)
 
 	// Build the complete prompt string.
 	var fullPrompt = NewStyledString()
@@ -164,11 +164,12 @@ func (self *PromptEnv) makeTitle() string {
 		info = fmt.Sprintf("[%s]", self.Info)
 	}
 	var pwdWidth = self.Width - utf8.RuneCountInString(info)
-	return info + self.formatPwd(pwdWidth).PlainString()
+	return info + self.formatPwd(nil, pwdWidth).PlainString()
 }
 
 // Formats the PWD for use in a prompt.
-func (self *PromptEnv) formatPwd(width int) *StyledString {
+func (self *PromptEnv) formatPwd(
+	mod func (in *StyledString) *StyledString, width int) *StyledString {
 	// Perform tilde collapsing on the PWD.
 	var home = self.Home
 	if strings.HasSuffix(home, "/") {
@@ -182,24 +183,33 @@ func (self *PromptEnv) formatPwd(width int) *StyledString {
 		pwd = "/"
 	}
 
+  var styledPwd = NewStyledString()
+  styledPwd.Style(Cyan, Bold)
+  styledPwd.Write(pwd)
+
+  if mod != nil {
+    styledPwd = mod(styledPwd)
+  }
   // TODO: special highlighting for corp-specific paths
 
 	// Subtract 1 in case we have to include the ellipsis character.
-	var pwdRunes = utf8.RuneCountInString(pwd)
+	var pwdRunes = utf8.RuneCountInString(styledPwd.PlainString())
 	var start = pwdRunes - (width - 1)
 	if start > 0 {
 		// Truncate the PWD.
 		if start >= pwdRunes {
 			// There is no room for the PWD at all.
-			pwd = ""
+			styledPwd = NewStyledString()
 		} else {
-			pwd = "…" + pwd[start:]
+			styledPwd.TrimFirst(start)
+			var withEllipsis = NewStyledString()
+			withEllipsis.Style(Cyan, Dim)
+			withEllipsis.Write("…")
+			withEllipsis.Append(styledPwd)
+			styledPwd = withEllipsis
 		}
 	}
 
-  var styledPwd = NewStyledString()
-  styledPwd.Style(Cyan, Bold)
-  styledPwd.Write(pwd)
 	return styledPwd
 }
 
