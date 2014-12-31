@@ -187,8 +187,18 @@ func (self *PromptEnv) formatPwd(
 	}
 
   var styledPwd = NewStyledString()
-  styledPwd.Style(Cyan, Bold)
-  styledPwd.Write(pwd)
+
+  // Style the slashes dimly and the path components boldly.
+  var splitPwd = strings.Split(pwd, "/")
+  for i, pwdComponent := range splitPwd {
+    styledPwd.Style(Cyan, Bold)
+    styledPwd.Write(pwdComponent)
+    if i < len(splitPwd) - 1 {
+      // This is not the final component, so put in a slash.
+      styledPwd.Style(Cyan, Dim)
+      styledPwd.Write("/"
+    }
+  }
 
   if mod != nil {
     styledPwd = mod(styledPwd)
