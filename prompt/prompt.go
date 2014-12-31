@@ -196,7 +196,7 @@ func (self *PromptEnv) formatPwd(
     if i < len(splitPwd) - 1 {
       // This is not the final component, so put in a slash.
       styledPwd.Style(Cyan, Dim)
-      styledPwd.Write("/"
+      styledPwd.Write("/")
     }
   }
 
