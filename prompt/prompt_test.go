@@ -40,7 +40,7 @@ func TestMakePromptSimple(t *testing.T) {
 	assertMakePrompt(t,
 		"%{\033[1;96m%}12/31 18:00 "+
 			"%{\033[1;95m%}myhost "+
-			"%{\033[1;96m%}/pw/d"+
+			"%{\033[0;36m%}/%{\033[1;96m%}pw%{\033[0;36m%}/%{\033[1;96m%}d"+
 			"%{\033[0m%}\nflag%{\033[1;93m%}$ %{\033[0m%}",
 		100, "", "", "/pw/d", 0, "flag")
 }
@@ -49,7 +49,7 @@ func TestMakePromptHomeCollapsing(t *testing.T) {
 	assertMakePrompt(t,
 		"%{\033[1;96m%}12/31 18:00 "+
 			"%{\033[1;95m%}myhost "+
-			"%{\033[1;96m%}~/place"+
+			"%{\033[1;96m%}~%{\033[0;36m%}/%{\033[1;96m%}place"+
 			"%{\033[0m%}\nflag%{\033[1;93m%}$ %{\033[0m%}",
 		100, "", "", "/home/me/place", 0, "flag")
 }
@@ -59,7 +59,7 @@ func TestMakePromptWithInfoAndExitCode(t *testing.T) {
 		"%{\033[1;96m%}12/31 18:00 "+
 			"%{\033[1;95m%}myhost "+
 			"%{\033[0;37m%}[%{\033[1;97m%}info%{\033[0;37m%}] "+
-			"%{\033[1;96m%}/pw/d"+
+			"%{\033[0;36m%}/%{\033[1;96m%}pw%{\033[0;36m%}/%{\033[1;96m%}d"+
 			"%{\033[1;91m%} [15]"+
 			"\n%{\033[0m%}flag%{\033[1;93m%}$ %{\033[0m%}",
 		100, "info", "info2", "/pw/d", 15, "flag")
