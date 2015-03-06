@@ -1,4 +1,8 @@
 // Library for inserting ANSI escapes into prompt strings.
+// TODO: Refactor and simplify. StyledString should be a list of StyledRunes.
+// Each StyledRune contains a fully style qualification and a single rune.
+// Rendering to an ANSI string should remove style escapes for adjacent
+// runes having the same style.
 package prompt
 
 import "fmt"
