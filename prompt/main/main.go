@@ -1,9 +1,9 @@
 package main
 
 import "log"
-import "code.google.com/p/sbp-go-utils/git"
-import "code.google.com/p/sbp-go-utils/hg"
-import "code.google.com/p/sbp-go-utils/prompt"
+import "github.com/sethpollen/sbp-go-utils/git"
+import "github.com/sethpollen/sbp-go-utils/hg"
+import "github.com/sethpollen/sbp-go-utils/prompt"
 
 func main() {
 	err := prompt.DoMain([]prompt.Module{git.Module(), hg.Module()}, nil)

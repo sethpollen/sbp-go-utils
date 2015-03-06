@@ -8,8 +8,8 @@ package hg
 import "errors"
 import "os"
 import "path"
-import "code.google.com/p/sbp-go-utils/prompt"
-import "code.google.com/p/sbp-go-utils/util"
+import "github.com/sethpollen/sbp-go-utils/prompt"
+import "github.com/sethpollen/sbp-go-utils/util"
 
 // Encapsulates information about an Hg repo.
 type HgInfo struct {

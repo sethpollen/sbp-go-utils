@@ -7,7 +7,7 @@ import "flag"
 import "fmt"
 import "log"
 import "time"
-import "code.google.com/p/sbp-go-utils/util"
+import "github.com/sethpollen/sbp-go-utils/util"
 
 var width = flag.Int("width", 100,
 	"Maximum number of characters which the output may occupy.")

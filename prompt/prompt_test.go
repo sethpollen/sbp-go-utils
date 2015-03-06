@@ -3,7 +3,7 @@ package prompt
 import "strconv"
 import "testing"
 import "time"
-import "code.google.com/p/sbp-go-utils/shell"
+import "github.com/sethpollen/sbp-go-utils/shell"
 
 var env = PromptEnv{time.Unix(0, 0), "/home/me", "", "myhost.example.com", "",
 	"", *NewStyledString(), 0, 100, *shell.NewEnvironMod(), nil}

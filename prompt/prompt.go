@@ -7,7 +7,7 @@ import "os/user"
 import "strings"
 import "time"
 import "unicode/utf8"
-import "code.google.com/p/sbp-go-utils/shell"
+import "github.com/sethpollen/sbp-go-utils/shell"
 import "github.com/bradfitz/gomemcache/memcache"
 
 // Collects information during construction of a prompt string.
