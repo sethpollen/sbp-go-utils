@@ -10,8 +10,8 @@ import "unicode/utf8"
 type StyledString []StyledRune
 
 type StyledRune struct {
-  style Style
-  text rune
+  Style Style
+  Text rune
 }
 
 // Colors.
@@ -83,21 +83,21 @@ func (self StyledString) String() string {
   var lastStyle Style
 
   for _, r := range self {
-    if unicode.IsSpace(r.text) {
+    if unicode.IsSpace(r.Text) {
       // Don't bother applying style.
-      buffer.WriteRune(r.text)
+      buffer.WriteRune(r.Text)
       continue
     }
-    if first || lastStyle != r.style {
+    if first || lastStyle != r.Style {
       // The style is changing, so insert a new style escape.
       buffer.WriteString("%{")
-      buffer.WriteString(r.style.toAnsi())
+      buffer.WriteString(r.Style.toAnsi())
       buffer.WriteString("%}")
 
       first = false
-      lastStyle = r.style
+      lastStyle = r.Style
     }
-    buffer.WriteRune(r.text)
+    buffer.WriteRune(r.Text)
   }
 
   // Clear style before ending.
@@ -113,7 +113,7 @@ func (self StyledString) String() string {
 func (self StyledString) PlainString() string {
   var buffer = bytes.NewBuffer(make([]byte, 0, len(self)))
   for _, r := range self {
-    buffer.WriteRune(r.text)
+    buffer.WriteRune(r.Text)
   }
   return buffer.String()
 }

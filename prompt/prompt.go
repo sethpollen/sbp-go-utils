@@ -139,7 +139,6 @@ func (self *PromptEnv) makePrompt(
 // side of the second line of the prompt. It will disappear if the user types
 // a long command, so it should not be super important. self.Info2 will be the
 // content displayed.
-// TODO: unit test
 func (self *PromptEnv) makeRPrompt() StyledString {
 	var rPrompt StyledString
 	if self.Info2 != "" {
@@ -163,9 +162,7 @@ func (self *PromptEnv) makeTitle(
 // Formats the PWD for use in a prompt. 'mod' is an arbitrary transformation
 // to apply to the full PWD before it is (potentially) truncated.
 func (self *PromptEnv) formatPwd(
-	mod func (in StyledString) StyledString, width int) StyledString {
-  // TODO: dim slashes
-
+	  mod func (in StyledString) StyledString, width int) StyledString {
 	// Perform tilde collapsing on the PWD.
 	var home = self.Home
 	if strings.HasSuffix(home, "/") {
@@ -183,6 +180,13 @@ func (self *PromptEnv) formatPwd(
 
   if mod != nil {
     styledPwd = mod(styledPwd)
+  }
+
+  // Dim slashes in the PWD.
+  for i := range styledPwd {
+    if styledPwd[i].Text == '/' {
+      styledPwd[i].Style.Modifier = Dim
+    }
   }
 
 	// Subtract 1 in case we have to include the ellipsis character.
