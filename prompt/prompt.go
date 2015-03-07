@@ -164,6 +164,8 @@ func (self *PromptEnv) makeTitle(
 // to apply to the full PWD before it is (potentially) truncated.
 func (self *PromptEnv) formatPwd(
 	mod func (in StyledString) StyledString, width int) StyledString {
+  // TODO: dim slashes
+
 	// Perform tilde collapsing on the PWD.
 	var home = self.Home
 	if strings.HasSuffix(home, "/") {
