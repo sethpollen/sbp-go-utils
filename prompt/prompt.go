@@ -7,8 +7,9 @@ import "os/user"
 import "strings"
 import "time"
 import "unicode/utf8"
-import "github.com/sethpollen/sbp-go-utils/shell"
 import "github.com/bradfitz/gomemcache/memcache"
+import . "github.com/sethpollen/sbp-go-utils/format"
+import "github.com/sethpollen/sbp-go-utils/shell"
 
 // Collects information during construction of a prompt string.
 type PromptEnv struct {
@@ -53,7 +54,6 @@ func NewPromptEnv(width int, exitCode int, mc *memcache.Client) *PromptEnv {
 	self.Info2 = ""
 	self.ExitCode = exitCode
 	self.Width = width
-	self.Flag = *NewStyledString()
 	self.EnvironMod = *shell.NewEnvironMod()
 
 	return self
@@ -61,7 +61,7 @@ func NewPromptEnv(width int, exitCode int, mc *memcache.Client) *PromptEnv {
 
 // Generates a shell prompt string.
 func (self *PromptEnv) makePrompt(
-	pwdMod func (in *StyledString) *StyledString) *StyledString {
+    pwdMod func (in StyledString) StyledString) StyledString {
 	// If the hostname is a full domain name, remove all but the first domain
 	// component.
 	var shortHostname = strings.SplitN(self.Hostname, ".", 2)[0]
@@ -71,46 +71,40 @@ func (self *PromptEnv) makePrompt(
 	var dateTime = self.Now.Format("01/02 15:04")
 
 	// Construct the prompt text which must precede the PWD.
-	var promptBeforePwd = NewStyledString()
+	var promptBeforePwd StyledString
 
 	// Date and time.
-	promptBeforePwd.Style(Cyan, Bold)
-	promptBeforePwd.Write(dateTime + " ")
+	promptBeforePwd = Stylize(dateTime + " ", Cyan, Bold)
 
 	// Hostname.
 	if runningOverSsh {
-		promptBeforePwd.Style(Yellow, Dim)
-		promptBeforePwd.Write("(")
+		promptBeforePwd = append(promptBeforePwd, Stylize("(", Yellow, Dim)...)
 	}
-	promptBeforePwd.Style(Magenta, Bold)
-	promptBeforePwd.Write(shortHostname)
+	promptBeforePwd = append(promptBeforePwd,
+                           Stylize(shortHostname, Magenta, Bold)...)
 	if runningOverSsh {
-		promptBeforePwd.Style(Yellow, Dim)
-		promptBeforePwd.Write(")")
+		promptBeforePwd = append(promptBeforePwd, Stylize(")", Yellow, Dim)...)
 	}
-	promptBeforePwd.Write(" ")
+	promptBeforePwd = append(promptBeforePwd, Unstyled(" ")...)
 
 	// Info (if we got one).
 	if self.Info != "" {
-		promptBeforePwd.Style(White, Dim)
-		promptBeforePwd.Write("[")
-		promptBeforePwd.Style(White, Bold)
-		promptBeforePwd.Write(self.Info)
-		promptBeforePwd.Style(White, Dim)
-		promptBeforePwd.Write("] ")
+    promptBeforePwd = append(promptBeforePwd, Stylize("[", White, Dim)...)
+    promptBeforePwd = append(promptBeforePwd,
+                             Stylize(self.Info, White, Bold)...)
+    promptBeforePwd = append(promptBeforePwd, Stylize("]", White, Dim)...)
 	}
 
 	// Construct the prompt text which must follow the PWD.
-	var promptAfterPwd = NewStyledString()
+	var promptAfterPwd StyledString
 
 	// Exit code.
 	if self.ExitCode != 0 {
-		promptAfterPwd.Style(Red, Bold)
-		promptAfterPwd.Write(fmt.Sprintf(" [%d]", self.ExitCode))
+    promptAfterPwd = Stylize(fmt.Sprintf(" [%d]", self.ExitCode), Red, Bold)
 	}
 
 	// Determine how much space is left for the PWD.
-	var pwdWidth = self.Width - promptBeforePwd.Len() - promptAfterPwd.Len()
+	var pwdWidth = self.Width - len(promptBeforePwd) - len(promptAfterPwd)
 	if pwdWidth < 0 {
 		pwdWidth = 0
 	}
@@ -125,20 +119,18 @@ func (self *PromptEnv) makePrompt(
 	var pwdPrompt = self.formatPwd(pwdMod, pwdWidth)
 
 	// Build the complete prompt string.
-	var fullPrompt = NewStyledString()
-	fullPrompt.Append(promptBeforePwd)
+	var fullPrompt StyledString = promptBeforePwd
 	if pwdOnItsOwnLine {
-		fullPrompt.Append(promptAfterPwd)
-		fullPrompt.Write("\n")
-		fullPrompt.Append(pwdPrompt)
+    fullPrompt = append(fullPrompt, promptAfterPwd...)
+		fullPrompt = append(fullPrompt, Unstyled("\n")...)
+		fullPrompt = append(fullPrompt, pwdPrompt...)
 	} else {
-		fullPrompt.Append(pwdPrompt)
-		fullPrompt.Append(promptAfterPwd)
+    fullPrompt = append(fullPrompt, pwdPrompt...)
+    fullPrompt = append(fullPrompt, promptAfterPwd...)
 	}
-	fullPrompt.Write("\n")
-	fullPrompt.Append(&self.Flag)
-	fullPrompt.Style(Yellow, Bold)
-	fullPrompt.Write("$ ")
+  fullPrompt = append(fullPrompt, Unstyled("\n")...)
+  fullPrompt = append(fullPrompt, self.Flag...)
+  fullPrompt = append(fullPrompt, Stylize("$ ", Yellow, Bold)...)
 
 	return fullPrompt
 }
@@ -148,11 +140,10 @@ func (self *PromptEnv) makePrompt(
 // a long command, so it should not be super important. self.Info2 will be the
 // content displayed.
 // TODO: unit test
-func (self *PromptEnv) makeRPrompt() *StyledString {
-	var rPrompt = NewStyledString()
+func (self *PromptEnv) makeRPrompt() StyledString {
+	var rPrompt StyledString
 	if self.Info2 != "" {
-		rPrompt.Style(White, Dim)
-		rPrompt.Write(self.Info2)
+    rPrompt = Stylize(self.Info2, White, Dim)
 	}
 	return rPrompt
 }
@@ -160,7 +151,7 @@ func (self *PromptEnv) makeRPrompt() *StyledString {
 // Generates a terminal emulator title bar string. Similar to a shell prompt
 // string, but lacks formatting escapes.
 func (self *PromptEnv) makeTitle(
-	pwdMod func (in *StyledString) *StyledString) string {
+	pwdMod func (in StyledString) StyledString) string {
 	var info = ""
 	if self.Info != "" {
 		info = fmt.Sprintf("[%s]", self.Info)
@@ -172,7 +163,7 @@ func (self *PromptEnv) makeTitle(
 // Formats the PWD for use in a prompt. 'mod' is an arbitrary transformation
 // to apply to the full PWD before it is (potentially) truncated.
 func (self *PromptEnv) formatPwd(
-	mod func (in *StyledString) *StyledString, width int) *StyledString {
+	mod func (in StyledString) StyledString, width int) StyledString {
 	// Perform tilde collapsing on the PWD.
 	var home = self.Home
 	if strings.HasSuffix(home, "/") {
@@ -186,9 +177,7 @@ func (self *PromptEnv) formatPwd(
 		pwd = "/"
 	}
 
-  var styledPwd = NewStyledString()
-  styledPwd.Style(Cyan, Bold)
-  styledPwd.Write(pwd)
+  var styledPwd StyledString = Stylize(pwd, Cyan, Bold)
 
   if mod != nil {
     styledPwd = mod(styledPwd)
@@ -201,13 +190,11 @@ func (self *PromptEnv) formatPwd(
 		// Truncate the PWD.
 		if start >= pwdRunes {
 			// There is no room for the PWD at all.
-			styledPwd = NewStyledString()
+			styledPwd = make(StyledString, 0)
 		} else {
-			styledPwd.TrimFirst(start)
-			var withEllipsis = NewStyledString()
-			withEllipsis.Style(Cyan, Dim)
-			withEllipsis.Write("…")
-			withEllipsis.Append(styledPwd)
+			styledPwd = styledPwd[start:]
+			var withEllipsis StyledString = Stylize("…", Cyan, Dim)
+      withEllipsis = append(withEllipsis, styledPwd...)
 			styledPwd = withEllipsis
 		}
 	}
@@ -222,7 +209,7 @@ func (self *PromptEnv) formatPwd(
 //   TERM_TITLE
 //   ... plus any other variables set in self.EnvironMod.
 func (self *PromptEnv) ToScript(
-	pwdMod func(in *StyledString) *StyledString) string {
+	pwdMod func(in StyledString) StyledString) string {
 	// Start by making a copy of the custom EnvironMod.
 	var mod = self.EnvironMod
 	// Now add our variables to it.

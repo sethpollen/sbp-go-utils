@@ -7,6 +7,7 @@ import "flag"
 import "fmt"
 import "log"
 import "time"
+import . "github.com/sethpollen/sbp-go-utils/format"
 import "github.com/sethpollen/sbp-go-utils/util"
 
 var width = flag.Int("width", 100,
@@ -39,7 +40,7 @@ type Module interface {
 // of them returns true. 'pwdMod' is an optional function to apply additional
 // formatting to the PWD before it is printed.
 func DoMain(modules []Module,
-            pwdMod func (in *StyledString) *StyledString) error {
+            pwdMod func (in StyledString) StyledString) error {
 	flag.Parse()
 
 	LogTime("Begin DoMain")

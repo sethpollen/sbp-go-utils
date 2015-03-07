@@ -1,12 +1,14 @@
 package prompt
+// TODO: fix failing test cases
 
 import "strconv"
 import "testing"
 import "time"
+import . "github.com/sethpollen/sbp-go-utils/format"
 import "github.com/sethpollen/sbp-go-utils/shell"
 
 var env = PromptEnv{time.Unix(0, 0), "/home/me", "", "myhost.example.com", "",
-	"", *NewStyledString(), 0, 100, *shell.NewEnvironMod(), nil}
+	"", make(StyledString, 0), 0, 100, *shell.NewEnvironMod(), nil}
 
 func assertMakePrompt(t *testing.T, expected string, width int, info string,
 	info2 string, pwd string, exitCode int, flag string) {
@@ -14,7 +16,7 @@ func assertMakePrompt(t *testing.T, expected string, width int, info string,
 	myEnv.Pwd = pwd
 	myEnv.Info = info
 	myEnv.Info2 = info2
-	myEnv.Flag.Write(flag)
+	myEnv.Flag = Stylize(flag, Red, Intense)
 	myEnv.Width = width
 	myEnv.ExitCode = exitCode
 	var p = myEnv.makePrompt(nil)

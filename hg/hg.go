@@ -8,6 +8,7 @@ package hg
 import "errors"
 import "os"
 import "path"
+import . "github.com/sethpollen/sbp-go-utils/format"
 import "github.com/sethpollen/sbp-go-utils/prompt"
 import "github.com/sethpollen/sbp-go-utils/util"
 
@@ -73,8 +74,7 @@ func (self module) Match(env *prompt.PromptEnv, updateCache bool) bool {
   if hgInfo.Dirty {
     env.Info += " *"
   }
-	env.Flag.Style(prompt.Magenta, prompt.Intense)
-	env.Flag.Write("hg")
+	env.Flag = append(env.Flag, Stylize("hg", Magenta, Intense)...)
 	env.Pwd = hgInfo.RelativePwd
 	return true
 }

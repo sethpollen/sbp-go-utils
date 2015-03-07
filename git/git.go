@@ -5,6 +5,7 @@ import "bufio"
 import "path"
 import "regexp"
 import "strings"
+import . "github.com/sethpollen/sbp-go-utils/format"
 import "github.com/sethpollen/sbp-go-utils/prompt"
 import "github.com/sethpollen/sbp-go-utils/util"
 
@@ -113,8 +114,7 @@ func (self module) Match(env *prompt.PromptEnv, updateCache bool) bool {
 		return false
 	}
 	env.Info = gitInfo.String()
-	env.Flag.Style(prompt.Red, prompt.Intense)
-	env.Flag.Write("git")
+	env.Flag = append(env.Flag, Stylize("git", Red, Intense)...)
 	env.Pwd = gitInfo.RelativePwd
 	return true
 }
