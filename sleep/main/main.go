@@ -25,7 +25,7 @@ func main() {
   var ticker = time.NewTicker(time.Second)
   for time.Now().Before(deadline) {
     // Home the cursor, clear to end of line, and print the remaining duration.
-    fmt.Printf("\033[9999D\033[K%s", remaining.String())
+    fmt.Printf("\033[9999D\033[KSleeping for %s", remaining.String())
     remaining = remaining - time.Second
 
     // Await a tick.
