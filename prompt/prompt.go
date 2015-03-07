@@ -92,7 +92,7 @@ func (self *PromptEnv) makePrompt(
     promptBeforePwd = append(promptBeforePwd, Stylize("[", White, Dim)...)
     promptBeforePwd = append(promptBeforePwd,
                              Stylize(self.Info, White, Bold)...)
-    promptBeforePwd = append(promptBeforePwd, Stylize("]", White, Dim)...)
+    promptBeforePwd = append(promptBeforePwd, Stylize("] ", White, Dim)...)
 	}
 
 	// Construct the prompt text which must follow the PWD.
