@@ -1,5 +1,4 @@
 package prompt
-// TODO: fix failing test cases
 
 import "strconv"
 import "testing"
@@ -20,10 +19,10 @@ func assertMakePrompt(t *testing.T, expected string, width int, info string,
 	myEnv.Width = width
 	myEnv.ExitCode = exitCode
 	var p = myEnv.makePrompt(nil)
-	if p.String() != expected {
+	if p.PlainString() != expected {
 		t.Errorf("\nExpected %s"+
 			"\nGot      %s",
-			strconv.Quote(expected), strconv.Quote(p.String()))
+			strconv.Quote(expected), strconv.Quote(p.PlainString()))
 	}
 }
 
@@ -40,50 +39,30 @@ func assertMakeTitle(t *testing.T, expected string, info string, pwd string) {
 
 func TestMakePromptSimple(t *testing.T) {
 	assertMakePrompt(t,
-		"%{\033[1;96m%}12/31 18:00 "+
-			"%{\033[1;95m%}myhost "+
-			"%{\033[0;36m%}/%{\033[1;96m%}pw%{\033[0;36m%}/%{\033[1;96m%}d"+
-			"%{\033[0m%}\nflag%{\033[1;93m%}$ %{\033[0m%}",
-		100, "", "", "/pw/d", 0, "flag")
+		"12/31 18:00 myhost /pw/d\nflag$ ",	100, "", "", "/pw/d", 0, "flag")
 }
 
 func TestMakePromptHomeCollapsing(t *testing.T) {
 	assertMakePrompt(t,
-		"%{\033[1;96m%}12/31 18:00 "+
-			"%{\033[1;95m%}myhost "+
-			"%{\033[1;96m%}~%{\033[0;36m%}/%{\033[1;96m%}place"+
-			"%{\033[0m%}\nflag%{\033[1;93m%}$ %{\033[0m%}",
-		100, "", "", "/home/me/place", 0, "flag")
+		"12/31 18:00 myhost ~/place\nflag$ ", 100, "", "", "/home/me/place", 0,
+    "flag")
 }
 
 func TestMakePromptWithInfoAndExitCode(t *testing.T) {
 	assertMakePrompt(t,
-		"%{\033[1;96m%}12/31 18:00 "+
-			"%{\033[1;95m%}myhost "+
-			"%{\033[0;37m%}[%{\033[1;97m%}info%{\033[0;37m%}] "+
-			"%{\033[0;36m%}/%{\033[1;96m%}pw%{\033[0;36m%}/%{\033[1;96m%}d"+
-			"%{\033[1;91m%} [15]"+
-			"\n%{\033[0m%}flag%{\033[1;93m%}$ %{\033[0m%}",
-		100, "info", "info2", "/pw/d", 15, "flag")
+		"12/31 18:00 myhost [info] /pw/d [15]\nflag$ ", 100, "info", "info2",
+    "/pw/d", 15, "flag")
 }
 
 func TestMakePromptTruncatedPwd(t *testing.T) {
 	assertMakePrompt(t,
-		"%{\033[1;96m%}12/31 18:00 "+
-			"%{\033[1;95m%}myhost "+
-			"%{\033[0;37m%}[%{\033[1;97m%}info%{\033[0;37m%}] "+
-			"%{\033[0;36m%}…%{\033[1;96m%}6789012345678901234567890"+
-			"%{\033[0m%}\nflag%{\033[1;93m%}$ %{\033[0m%}",
+		"12/31 18:00 myhost [info] …6789012345678901234567890\nflag$ ",
 		52, "info", "info2", "1234567890123456789012345678901234567890", 0, "flag")
 }
 
 func TestMakePromptPwdOnItsOwnLine(t *testing.T) {
 	assertMakePrompt(t,
-		"%{\033[1;96m%}12/31 18:00 "+
-			"%{\033[1;95m%}myhost "+
-			"%{\033[0;37m%}[%{\033[1;97m%}info%{\033[0;37m%}] %{\033[0m%}\n"+
-			"%{\033[0;36m%}…%{\033[1;96m%}23456789012345678901234567890"+
-			"\n%{\033[0m%}flag%{\033[1;93m%}$ %{\033[0m%}",
+		"12/31 18:00 myhost [info] \n…23456789012345678901234567890\nflag$ ",
 		30, "info", "info2", "1234567890123456789012345678901234567890", 0, "flag")
 }
 
