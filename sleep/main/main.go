@@ -5,6 +5,9 @@ import "fmt"
 import "os"
 import "time"
 
+var bell = flag.Bool("bell", false,
+    "Whether to send an ASCII bell after we finish sleeping.")
+
 func main() {
   flag.Parse()
   if len(flag.Args()) == 0 {
@@ -34,4 +37,8 @@ func main() {
 
   // Clear the remaining indicator before returning.
   fmt.Print("\033[9999D\033[K")
+
+  if *bell {
+    fmt.Print("\007")
+  }
 }
