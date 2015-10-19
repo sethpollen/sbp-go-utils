@@ -222,5 +222,8 @@ func (self *PromptEnv) ToScript(
 	mod.SetVar("PROMPT", self.makePrompt(pwdMod).String())
 	mod.SetVar("RPROMPT", self.makeRPrompt().String())
 	mod.SetVar("TERM_TITLE", self.makeTitle(pwdMod))
+	// Include the Info string separately, since it is sometimes useful
+	// on its own (i.e. as the name of the current repo).
+	mod.SetVar("INFO", self.Info)
 	return mod.ToScript()
 }
