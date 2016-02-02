@@ -151,10 +151,21 @@ func (self *PromptEnv) makeRPrompt() StyledString {
 // string, but lacks formatting escapes.
 func (self *PromptEnv) makeTitle(
 	pwdMod func (in StyledString) StyledString) string {
+
 	var info = ""
 	if self.Info != "" {
 		info = fmt.Sprintf("[%s]", self.Info)
+    // Just return the plain self.Info if we detect we are running inside
+    // a tmux session (i.e. the $TMUX environment variable is set). When running
+    // in tmux, these title strings don't get displayed on the xterm window;
+    // they get shown in the tmux tab bar. Space there is constrained, so we
+    // don't want to see lengthy PWDs.
+    var runningUnderTmux = (os.Getenv("TMUX") != "")
+    if runningUnderTmux {
+      return info
+    }
 	}
+
 	var pwdWidth = self.Width - utf8.RuneCountInString(info)
 	return info + self.formatPwd(pwdMod, pwdWidth).PlainString()
 }
