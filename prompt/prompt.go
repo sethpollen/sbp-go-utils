@@ -87,7 +87,9 @@ func (self *PromptEnv) makePrompt(
 	if runningOverSsh {
 		promptBeforePwd = append(promptBeforePwd, Stylize(")", Yellow, Dim)...)
     if tmuxHasBell("ssh") {
-      promptBeforePwd = append(promptBeforePwd, Stylize("+", Yellow, Bold)...)
+      // Add a "!" to indicate that there is some output waiting to be seen
+      // in the SSH tmux session.
+      promptBeforePwd = append(promptBeforePwd, Stylize("!", Yellow, Bold)...)
     }
 	}
 	promptBeforePwd = append(promptBeforePwd, Unstyled(" ")...)
