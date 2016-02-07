@@ -3,7 +3,9 @@ package prompt
 
 import "fmt"
 import "os"
+import "os/exec"
 import "os/user"
+import "regexp"
 import "strings"
 import "time"
 import "unicode/utf8"
@@ -84,6 +86,9 @@ func (self *PromptEnv) makePrompt(
                            Stylize(shortHostname, Magenta, Bold)...)
 	if runningOverSsh {
 		promptBeforePwd = append(promptBeforePwd, Stylize(")", Yellow, Dim)...)
+    if tmuxHasBell("ssh") {
+      promptBeforePwd = append(promptBeforePwd, Stylize("+", Yellow, Bold)...)
+    }
 	}
 	promptBeforePwd = append(promptBeforePwd, Unstyled(" ")...)
 
@@ -238,3 +243,21 @@ func (self *PromptEnv) ToScript(
 	mod.SetVar("INFO", self.Info)
 	return mod.ToScript()
 }
+
+// Returns true if the given tmux 'session' on this machine  has experienced a
+// terminall bell which has not been shown on any clients yet.
+func tmuxHasBell(session string) bool {
+  output, err := exec.Command("tmux",
+                              "list-windows",
+                              "-F", "#{session_name} #{window_flags}").Output()
+  if err != nil {
+    return false
+  }
+  // The "!" flag indicates a bell.
+  matched, err := regexp.Match(fmt.Sprintf("%s.*\\!", session), output)
+  if err != nil {
+    return false
+  }
+  return matched
+}
+
