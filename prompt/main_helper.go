@@ -44,7 +44,6 @@ func DoMain(modules []Module,
 	flag.Parse()
 
 	LogTime("Begin DoMain")
-	defer LogTime("End DoMain")
 
 	var env = NewPromptEnv(*width, *exitCode, util.LocalMemcache())
 	for _, module := range modules {
@@ -62,8 +61,15 @@ func DoMain(modules []Module,
 		}
 	}
 
+  // Report the amount of time we spent generating the prompt.
+  var elapsed = time.Now().Sub(processStart)
+  env.EnvironMod.SetVar("PROMPT_GENERATION_SECONDS",
+                        fmt.Sprintf("%f", elapsed.Seconds()))
+
 	// Write results.
 	fmt.Println(env.ToScript(pwdMod))
+
+	LogTime("End DoMain")
 	return nil
 }
 
