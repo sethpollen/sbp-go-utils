@@ -68,6 +68,7 @@ func (self *PromptEnv) makePrompt(
 	// component.
 	var shortHostname = strings.SplitN(self.Hostname, ".", 2)[0]
 	var runningOverSsh = (os.Getenv("SSH_TTY") != "")
+	var tmuxBell = tmuxHasBell("ssh")
 
 	// Format the date and time.
 	var dateTime = self.Now.Format("01/02 15:04")
@@ -86,12 +87,12 @@ func (self *PromptEnv) makePrompt(
                            Stylize(shortHostname, Magenta, Bold)...)
 	if runningOverSsh {
 		promptBeforePwd = append(promptBeforePwd, Stylize(")", Yellow, Dim)...)
-    if tmuxHasBell("ssh") {
-      // Add a "!" to indicate that there is some output waiting to be seen
-      // in the SSH tmux session.
-      promptBeforePwd = append(promptBeforePwd, Stylize("!", Yellow, Bold)...)
-    }
 	}
+  if tmuxBell {
+    // Add a "!" to indicate that there is some output waiting to be seen
+    // in the SSH tmux session.
+    promptBeforePwd = append(promptBeforePwd, Stylize("!", Yellow, Bold)...)
+  }
 	promptBeforePwd = append(promptBeforePwd, Unstyled(" ")...)
 
 	// Info (if we got one).
