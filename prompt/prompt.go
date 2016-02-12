@@ -68,6 +68,7 @@ func (self *PromptEnv) makePrompt(
 	// component.
 	var shortHostname = strings.SplitN(self.Hostname, ".", 2)[0]
 	var runningOverSsh = (os.Getenv("SSH_TTY") != "")
+  var tmuxStatus = getTmuxStatus("ssh")
 
 	// Format the date and time.
 	var dateTime = self.Now.Format("01/02 15:04")
@@ -86,13 +87,19 @@ func (self *PromptEnv) makePrompt(
                            Stylize(shortHostname, Magenta, Bold)...)
 	if runningOverSsh {
 		promptBeforePwd = append(promptBeforePwd, Stylize(")", Yellow, Dim)...)
-    if tmuxHasBell("ssh") {
-      // Add a "!" to indicate that there is some output waiting to be seen
-      // in the SSH tmux session.
-      promptBeforePwd = append(promptBeforePwd, Stylize("!", Yellow, Bold)...)
-    }
 	}
 	promptBeforePwd = append(promptBeforePwd, Unstyled(" ")...)
+
+  switch tmuxStatus {
+    case TmuxNone:
+      // Do nothing.
+    case TmuxRunning:
+      // Show a subtle % to indicate "running".
+      promptBeforePwd = append(promptBeforePwd, Stylize("%", Yellow, Dim)...)
+    case TmuxBell:
+      // Show a bold ! to indicate "bell".
+      promptBeforePwd = append(promptBeforePwd, Stylize("!", Yellow, Bold)...)
+  }
 
 	// Info (if we got one).
 	if self.Info != "" {
@@ -246,20 +253,40 @@ func (self *PromptEnv) ToScript(
 	return mod.ToScript()
 }
 
-// Returns true if the given tmux 'session' on this machine  has experienced a
-// terminall bell which has not been shown on any clients yet.
-func tmuxHasBell(session string) bool {
+// Tmux statuses.
+const (
+  // The tmux session is not running.
+  TmuxNone = iota
+  // The tmux session is running but has no bell.
+  TmuxRunning
+  // The tmux session is running and has an unviewed bell.
+  TmuxBell
+)
+
+// Returns TmuxNone, TmuxRunning, or TmuxBell based on the status of the given
+// tmux session.
+func getTmuxStatus(session string) int {
   output, err := exec.Command("tmux",
                               "list-windows",
                               "-F", "#{session_name} #{window_flags}").Output()
   if err != nil {
-    return false
+    return TmuxNone
   }
+
+  matched, err := regexp.Match(session, output)
+  if err != nil || !matched {
+    return TmuxNone
+  }
+
   // The "!" flag indicates a bell.
-  matched, err := regexp.Match(fmt.Sprintf("%s.*\\!", session), output)
+  matched, err = regexp.Match(fmt.Sprintf("%s.*\\!", session), output)
   if err != nil {
-    return false
+    return TmuxNone
   }
-  return matched
+
+  if matched {
+    return TmuxBell
+  }
+  return TmuxRunning
 }
 
