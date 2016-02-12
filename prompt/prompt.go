@@ -272,7 +272,7 @@ func getTmuxStatus(session string) int {
   if err != nil {
     return TmuxNone
   }
-  output_str = string(output)
+  output_str := string(output)
 
   matched, err := regexp.Match(fmt.Sprintf("%s ", session), output_str)
   if err != nil || !matched {
