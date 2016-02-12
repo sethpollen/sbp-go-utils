@@ -272,23 +272,18 @@ func getTmuxStatus(session string) int {
   if err != nil {
     return TmuxNone
   }
+  output_str = string(output)
 
-  fmt.Println(output)
-
-  matched, err := regexp.Match(fmt.Sprintf("%s ", session), output)
+  matched, err := regexp.Match(fmt.Sprintf("%s ", session), output_str)
   if err != nil || !matched {
     return TmuxNone
   }
 
-  fmt.Println("yo")
-
   // The "!" flag indicates a bell.
-  matched, err = regexp.Match(fmt.Sprintf("%s .*\\!", session), output)
+  matched, err = regexp.Match(fmt.Sprintf("%s .*\\!", session), output_str)
   if err != nil {
     return TmuxNone
   }
-
-  fmt.Println(matched)
 
   if matched {
     return TmuxBell
