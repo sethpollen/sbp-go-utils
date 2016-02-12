@@ -1,5 +1,8 @@
 package prompt
 
+// TODO: These tests currently fail if you are running tmux at the same time.
+// We need to make them more hermetic.
+
 import "strconv"
 import "testing"
 import "time"
