@@ -92,15 +92,12 @@ func (self *PromptEnv) makePrompt(
   switch tmuxStatus {
     case TmuxNone:
       // Do nothing.
-      fmt.Println("A") // TODO:
     case TmuxRunning:
       // Show a subtle % to indicate "running".
       promptBeforePwd = append(promptBeforePwd, Stylize("%", Yellow, Dim)...)
-      fmt.Println("B") // TODO:
     case TmuxBell:
       // Show a bold ! to indicate "bell".
       promptBeforePwd = append(promptBeforePwd, Stylize("!", Yellow, Bold)...)
-      fmt.Println("C") // TODO:
   }
 	promptBeforePwd = append(promptBeforePwd, Unstyled(" ")...)
 
@@ -276,13 +273,11 @@ func getTmuxStatus(session string) int {
     return TmuxNone
   }
   output_str := string(output)
-  fmt.Println(output_str)  // TODO:
 
   matched, err := regexp.MatchString(fmt.Sprintf("%s ", session), output_str)
   if err != nil || !matched {
     return TmuxNone
   }
-  fmt.Println(output_str)  // TODO:
 
   // The "!" flag indicates a bell.
   matched, err = regexp.MatchString(fmt.Sprintf("%s .*\\!", session),
@@ -290,12 +285,10 @@ func getTmuxStatus(session string) int {
   if err != nil {
     return TmuxNone
   }
-  fmt.Println(output_str)  // TODO:
 
   if matched {
     return TmuxBell
   }
-  fmt.Println(output_str)  // TODO:
   return TmuxRunning
 }
 
