@@ -95,10 +95,10 @@ func (self *PromptEnv) makePrompt(
       // Do nothing.
     case TmuxRunning:
       // Show a subtle % to indicate "running".
-      promptBeforePwd = append(promptBeforePwd, Stylize("%", Yellow, Dim)...)
+      promptBeforePwd = append(promptBeforePwd, Stylize("% ", Yellow, Dim)...)
     case TmuxBell:
       // Show a bold ! to indicate "bell".
-      promptBeforePwd = append(promptBeforePwd, Stylize("!", Yellow, Bold)...)
+      promptBeforePwd = append(promptBeforePwd, Stylize("! ", Yellow, Bold)...)
   }
 
 	// Info (if we got one).
