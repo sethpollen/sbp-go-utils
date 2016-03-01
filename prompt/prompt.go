@@ -94,8 +94,12 @@ func (self *PromptEnv) makePrompt(
     case TmuxNone:
       // Do nothing.
     case TmuxRunning:
-      // Show a subtle % to indicate "running".
-      promptBeforePwd = append(promptBeforePwd, Stylize("% ", Yellow, Dim)...)
+      if os.Getenv("TMUX") != "" {
+        // Do nothing; we are already inside tmux.
+      } else {
+        // Show a subtle % to indicate "running".
+        promptBeforePwd = append(promptBeforePwd, Stylize("% ", Yellow, Dim)...)
+      }
     case TmuxBell:
       // Show a bold ! to indicate "bell".
       promptBeforePwd = append(promptBeforePwd, Stylize("! ", Yellow, Bold)...)
