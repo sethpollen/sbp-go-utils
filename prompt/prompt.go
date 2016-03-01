@@ -88,7 +88,6 @@ func (self *PromptEnv) makePrompt(
 	if runningOverSsh {
 		promptBeforePwd = append(promptBeforePwd, Stylize(")", Yellow, Dim)...)
 	}
-	promptBeforePwd = append(promptBeforePwd, Unstyled(" ")...)
 
   switch tmuxStatus {
     case TmuxNone:
@@ -98,12 +97,13 @@ func (self *PromptEnv) makePrompt(
         // Do nothing; we are already inside tmux.
       } else {
         // Show a subtle % to indicate "running".
-        promptBeforePwd = append(promptBeforePwd, Stylize("% ", Yellow, Dim)...)
+        promptBeforePwd = append(promptBeforePwd, Stylize("%%", Yellow, Dim)...)
       }
     case TmuxBell:
       // Show a bold ! to indicate "bell".
-      promptBeforePwd = append(promptBeforePwd, Stylize("! ", Yellow, Bold)...)
+      promptBeforePwd = append(promptBeforePwd, Stylize("!", Yellow, Bold)...)
   }
+	promptBeforePwd = append(promptBeforePwd, Unstyled(" ")...)
 
 	// Info (if we got one).
 	if self.Info != "" {
