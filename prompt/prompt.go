@@ -66,6 +66,8 @@ func (self *PromptEnv) makePrompt(
     pwdMod func (in StyledString) StyledString) StyledString {
 	// If the hostname is a full domain name, remove all but the first domain
 	// component.
+	// TODO: This info should really be part of the PromptEnv, so we don't
+	// have to compute it both here and in MakeTitle.
 	var shortHostname = strings.SplitN(self.Hostname, ".", 2)[0]
 	var runningOverSsh = (os.Getenv("SSH_TTY") != "")
   var tmuxStatus = getTmuxStatus("ssh")
@@ -169,6 +171,13 @@ func (self *PromptEnv) makeRPrompt() StyledString {
 // string, but lacks formatting escapes.
 func (self *PromptEnv) makeTitle(
 	pwdMod func (in StyledString) StyledString) string {
+	var runningOverSsh = (os.Getenv("SSH_TTY") != "")
+
+	var host = ""
+	if runningOverSsh {
+	  var shortHostname = strings.SplitN(self.Hostname, ".", 2)[0]
+	  host = "(" + shortHostname + ")"
+	}
 
 	var info = ""
 	if self.Info != "" {
@@ -185,7 +194,7 @@ func (self *PromptEnv) makeTitle(
 	}
 
 	var pwdWidth = self.Width - utf8.RuneCountInString(info)
-	return info + self.formatPwd(pwdMod, pwdWidth).PlainString()
+	return host + info + self.formatPwd(pwdMod, pwdWidth).PlainString()
 }
 
 // Formats the PWD for use in a prompt. 'mod' is an arbitrary transformation
