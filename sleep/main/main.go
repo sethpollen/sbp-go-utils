@@ -38,6 +38,9 @@ func main() {
   // Clear the remaining indicator before returning.
   fmt.Print("\033[9999D\033[K")
 
+  // Print the final output line.
+  fmt.Printf("Slept for %s\n", duration.String())
+
   if *bell {
     fmt.Print("\007")
   }
