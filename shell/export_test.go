@@ -28,4 +28,3 @@ func TestToScript(t *testing.T) {
 		}
 	}
 }
-

@@ -31,7 +31,7 @@ var statusBranchAheadRegex = regexp.MustCompile("^\\#\\# .* \\[ahead [0-9]+\\]$"
 // a Git repository, returns an error.
 func GetGitInfo(pwd string) (*GitInfo, error) {
 	repoPath, err :=
-    util.EvalCommandSync(pwd, "git", "rev-parse", "--show-toplevel")
+		util.EvalCommandSync(pwd, "git", "rev-parse", "--show-toplevel")
 	if err != nil {
 		return nil, err
 	}
@@ -44,14 +44,14 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 		// We may be in a detached head. In that case, find the hash of the detached
 		// head revision.
 		branch, err =
-      util.EvalCommandSync(pwd, "git", "rev-parse", "--short", "HEAD")
+			util.EvalCommandSync(pwd, "git", "rev-parse", "--short", "HEAD")
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	status, err :=
-    util.EvalCommandSync(pwd, "git", "status", "--branch", "--porcelain")
+		util.EvalCommandSync(pwd, "git", "status", "--branch", "--porcelain")
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func GetGitInfo(pwd string) (*GitInfo, error) {
 
 	// Parse the git status result.
 	var scanner = bufio.NewScanner(strings.NewReader(status))
-  // Stop looping of we set both Ahead and Dirty to true.
+	// Stop looping of we set both Ahead and Dirty to true.
 	for scanner.Scan() && !(info.Ahead && info.Dirty) {
 		var line = scanner.Text()
 		if strings.HasPrefix(line, "## ") {

@@ -42,19 +42,19 @@ func assertMakeTitle(t *testing.T, expected string, info string, pwd string) {
 
 func TestMakePromptSimple(t *testing.T) {
 	assertMakePrompt(t,
-		"12/31 18:00 myhost /pw/d\nflag$ ",	100, "", "", "/pw/d", 0, "flag")
+		"12/31 18:00 myhost /pw/d\nflag$ ", 100, "", "", "/pw/d", 0, "flag")
 }
 
 func TestMakePromptHomeCollapsing(t *testing.T) {
 	assertMakePrompt(t,
 		"12/31 18:00 myhost ~/place\nflag$ ", 100, "", "", "/home/me/place", 0,
-    "flag")
+		"flag")
 }
 
 func TestMakePromptWithInfoAndExitCode(t *testing.T) {
 	assertMakePrompt(t,
 		"12/31 18:00 myhost [info] /pw/d [15]\nflag$ ", 100, "info", "info2",
-    "/pw/d", 15, "flag")
+		"/pw/d", 15, "flag")
 }
 
 func TestMakePromptTruncatedPwd(t *testing.T) {

@@ -113,55 +113,55 @@ func TestSearchParentsMatchLoneSlash(t *testing.T) {
 }
 
 func TestGetLongestPrefix(t *testing.T) {
-  var result = GetLongestCommonPrefix([]string{})
-  if result != "" {
-    t.Errorf("Expected empty string, got %s", result)
-  }
-  result = GetLongestCommonPrefix([]string{"abc"})
-  if result != "abc" {
-    t.Errorf("Expected abc, got %s", result)
-  }
-  result = GetLongestCommonPrefix([]string{"ab", "abc"})
-  if result != "ab" {
-    t.Errorf("Expected ab, got %s", result)
-  }
-  result = GetLongestCommonPrefix([]string{"Hello", "Helo", "Hola"})
-  if result != "H" {
-    t.Errorf("Expected H, got %s", result)
-  }
+	var result = GetLongestCommonPrefix([]string{})
+	if result != "" {
+		t.Errorf("Expected empty string, got %s", result)
+	}
+	result = GetLongestCommonPrefix([]string{"abc"})
+	if result != "abc" {
+		t.Errorf("Expected abc, got %s", result)
+	}
+	result = GetLongestCommonPrefix([]string{"ab", "abc"})
+	if result != "ab" {
+		t.Errorf("Expected ab, got %s", result)
+	}
+	result = GetLongestCommonPrefix([]string{"Hello", "Helo", "Hola"})
+	if result != "H" {
+		t.Errorf("Expected H, got %s", result)
+	}
 }
 
 func TestSplitPath(t *testing.T) {
-  type TestData struct {
-    in string
-    out []string
-  }
-  var testData = []TestData{
-    {"", []string{"."}},
-    {".", []string{"."}},
-    {"/", []string{"/"}},
-    {"/.", []string{"/"}},
-    {"a/b", []string{"a", "b"}},
-    {"a/b/", []string{"a", "b"}},
-    {"a/b/.", []string{"a", "b"}},
-    {"/a/b", []string{"/", "a", "b"}},
-    {"/a/b/", []string{"/", "a", "b"}},
-    {"/a/b/.", []string{"/", "a", "b"}},
-    {"/a/../b", []string{"/", "b"}},
-    {"/a/../b/", []string{"/", "b"}},
-    {"/a/../b/.", []string{"/", "b"}},
-  }
-  for _, testDatum := range testData {
-    var actual = SplitPath(testDatum.in)
-    if len(actual) != len(testDatum.out) {
-      t.Errorf("Got wrong number of elements when splitting %s: %v",
-               testDatum.in, actual)
-    } else {
-      for i := 0; i < len(actual); i++ {
-        if actual[i] != testDatum.out[i] {
-          t.Errorf("Got wrong element at position %d: %s", i, actual[i])
-        }
-      }
-    }
-  }
+	type TestData struct {
+		in  string
+		out []string
+	}
+	var testData = []TestData{
+		{"", []string{"."}},
+		{".", []string{"."}},
+		{"/", []string{"/"}},
+		{"/.", []string{"/"}},
+		{"a/b", []string{"a", "b"}},
+		{"a/b/", []string{"a", "b"}},
+		{"a/b/.", []string{"a", "b"}},
+		{"/a/b", []string{"/", "a", "b"}},
+		{"/a/b/", []string{"/", "a", "b"}},
+		{"/a/b/.", []string{"/", "a", "b"}},
+		{"/a/../b", []string{"/", "b"}},
+		{"/a/../b/", []string{"/", "b"}},
+		{"/a/../b/.", []string{"/", "b"}},
+	}
+	for _, testDatum := range testData {
+		var actual = SplitPath(testDatum.in)
+		if len(actual) != len(testDatum.out) {
+			t.Errorf("Got wrong number of elements when splitting %s: %v",
+				testDatum.in, actual)
+		} else {
+			for i := 0; i < len(actual); i++ {
+				if actual[i] != testDatum.out[i] {
+					t.Errorf("Got wrong element at position %d: %s", i, actual[i])
+				}
+			}
+		}
+	}
 }

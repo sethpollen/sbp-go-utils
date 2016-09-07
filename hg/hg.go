@@ -16,32 +16,32 @@ import "github.com/sethpollen/sbp-go-utils/util"
 type HgInfo struct {
 	// Name of this Hg repo.
 	RepoName string
-  // Full path to the root of this repo.
-  RepoPath string
+	// Full path to the root of this repo.
+	RepoPath string
 	// Pwd, relative to the root repo path.
 	RelativePwd string
-  // True if there are uncommitted local changes.
-  Dirty bool
+	// True if there are uncommitted local changes.
+	Dirty bool
 }
 
 func GetHgInfo(pwd string) (*HgInfo, error) {
 	repoPath, err := getHgRepoRoot(pwd)
-  if err != nil {
-    return nil, err
-  }
+	if err != nil {
+		return nil, err
+	}
 
-  // Now that we know we are in an Hg repo, it's worth paying the cost to run
-  // hg status.
-  status, err := util.EvalCommandSync(pwd, "hg", "status")
-  if err != nil {
-    return nil, err
-  }
+	// Now that we know we are in an Hg repo, it's worth paying the cost to run
+	// hg status.
+	status, err := util.EvalCommandSync(pwd, "hg", "status")
+	if err != nil {
+		return nil, err
+	}
 
 	var info = new(HgInfo)
 	info.RepoName = path.Base(repoPath)
-  info.RepoPath = repoPath
+	info.RepoPath = repoPath
 	info.RelativePwd = util.RelativePath(pwd, repoPath)
-  info.Dirty = (status != "")
+	info.Dirty = (status != "")
 	return info, nil
 }
 
@@ -50,7 +50,7 @@ func getHgRepoRoot(pwd string) (string, error) {
 	if err != nil {
 		return "", errors.New("Not in an Hg repo")
 	}
-  return repoPath, nil
+	return repoPath, nil
 }
 
 func isHgRepoRoot(pwd string) bool {
@@ -71,9 +71,9 @@ func (self module) Match(env *prompt.PromptEnv, updateCache bool) bool {
 	}
 
 	env.Info = hgInfo.RepoName
-  if hgInfo.Dirty {
-    env.Info += " *"
-  }
+	if hgInfo.Dirty {
+		env.Info += " *"
+	}
 	env.Flag = append(env.Flag, Stylize("hg", Magenta, Intense)...)
 	env.Pwd = hgInfo.RelativePwd
 	return true

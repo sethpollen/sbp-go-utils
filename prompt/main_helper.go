@@ -13,7 +13,7 @@ import "github.com/sethpollen/sbp-go-utils/util"
 var width = flag.Int("width", 100,
 	"Maximum number of characters which the output may occupy.")
 var updateCache = flag.Bool("update_cache", false,
-  "True to perform expensive operations and update the cache.")
+	"True to perform expensive operations and update the cache.")
 var exitCode = flag.Int("exitcode", 0,
 	"Exit code of previous command. If absent, 0 is assumed.")
 var printTiming = flag.Bool("print_timing", false,
@@ -29,7 +29,7 @@ type Module interface {
 
 	// If the match succeeds, modifies 'env' in-place and returns true. Otherwise,
 	// returns false. If 'updateCache' is true, this call should do expensive
-  // operations and write their results to the cache.
+	// operations and write their results to the cache.
 	Match(env *PromptEnv, updateCache bool) bool
 
 	// Returns a short string describing this Module.
@@ -40,7 +40,7 @@ type Module interface {
 // of them returns true. 'pwdMod' is an optional function to apply additional
 // formatting to the PWD before it is printed.
 func DoMain(modules []Module,
-            pwdMod func (in StyledString) StyledString) error {
+	pwdMod func(in StyledString) StyledString) error {
 	flag.Parse()
 
 	LogTime("Begin DoMain")
@@ -61,10 +61,10 @@ func DoMain(modules []Module,
 		}
 	}
 
-  // Report the amount of time we spent generating the prompt.
-  var elapsed = time.Now().Sub(processStart)
-  env.EnvironMod.SetVar("PROMPT_GENERATION_SECONDS",
-                        fmt.Sprintf("%f", elapsed.Seconds()))
+	// Report the amount of time we spent generating the prompt.
+	var elapsed = time.Now().Sub(processStart)
+	env.EnvironMod.SetVar("PROMPT_GENERATION_SECONDS",
+		fmt.Sprintf("%f", elapsed.Seconds()))
 
 	// Write results.
 	fmt.Println(env.ToScript(pwdMod))
