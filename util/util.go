@@ -1,7 +1,6 @@
 package util
 
 import "errors"
-import "io/ioutil"
 import "os/exec"
 import "path"
 import "strings"
@@ -84,6 +83,14 @@ func SearchParents(p string, test func(p string) bool) (string, error) {
 	}
 
 	return "", errors.New("No prefix matched")
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	} else {
+		return b
+	}
 }
 
 // Returns the longest common prefix of strings in 'p'.
