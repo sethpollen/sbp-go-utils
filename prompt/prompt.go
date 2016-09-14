@@ -50,7 +50,14 @@ func NewPromptEnv(width int, exitCode int, mc *memcache.Client) *PromptEnv {
 		self.Home = user.HomeDir
 	}
 
-	self.Pwd, _ = os.Getwd()
+  // If possible, get the pwd from $PWD, as this usually does the right thing
+  // with symlinks (i.e. it shows the path you used to get here, not the
+  // actual physical path). If $PWD fails, fall back on os.Getwd().
+  self.Pwd = os.Getenv("PWD")
+  if len(self.Pwd) == 0 {
+    self.Pwd, _ = os.Getwd()
+  }
+
 	self.Hostname, _ = os.Hostname()
 	self.Info = ""
 	self.Info2 = ""
